@@ -38,6 +38,7 @@ class AnyImageView extends StatelessWidget {
     this.onTap,
     this.borderRadius,
     this.margin,
+    this.padding,
     this.border,
     this.cachedNetHeight,
     this.cachedNetWidth,
@@ -88,6 +89,13 @@ class AnyImageView extends StatelessWidget {
             color: color,
           );
         case ImageType.json:
+          return Lottie.asset(
+            imagePath!,
+            height: height,
+            width: width,
+            fit: boxFit ?? BoxFit.contain,
+          );
+          case ImageType.zip:
           return Lottie.asset(
             imagePath!,
             height: height,
@@ -146,9 +154,16 @@ extension ImageTypeExtension on String {
       return ImageType.network;
     } else if (endsWith('.svg')) {
       return ImageType.svg;
-    } else if (endsWith('.json')) {
+    }
+    else if (endsWith('.json')) {
       return ImageType.json;
-    } else if (startsWith('file://')) {
+    }
+
+    else if (endsWith('.zip')) {
+      return ImageType.zip;
+    }
+
+    else if (startsWith('file://')) {
       return ImageType.file;
     } else {
       return ImageType.png;
@@ -156,4 +171,4 @@ extension ImageTypeExtension on String {
   }
 }
 
-enum ImageType { svg, png, network, json, file, unknown }
+enum ImageType { svg, png, network, json, zip, file, unknown }
