@@ -2,9 +2,9 @@
 class Assets {
   Assets._();
 
-  static const String lottieOffer = 'assets/lottie/offer.json';
-  static const String lottieUpdate = 'assets/lottie/update.zip';
-  static const String pngCar = 'assets/png/car.png';
-  static const String svgFreeShipping = 'assets/svg/free_shipping.svg';
+  static const String lottieAni = 'assets/lottie/ani.json';
+  static const String pngError = 'assets/png/error.png';
+  static const String pngFlutterBanner = 'assets/png/flutter_banner.png';
+  static const String svgFlutter = 'assets/svg/flutter.svg';
 
 }
