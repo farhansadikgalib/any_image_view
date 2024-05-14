@@ -82,7 +82,7 @@ class DemoApp extends StatelessWidget {
 - Custom image properties using `height`, `width`, `fit`, `alignment`, `padding`, `margin` parameters.
 - Custom image properties using `cachedNetHeight`, `cachedNetWidth` parameters.
 
-## ScreenShot
+## Screenshot
 
 <img  src="https://github.com/farhansadikgalib/any_image_view/blob/main/raw/ss.png" height="400"></img>
 
