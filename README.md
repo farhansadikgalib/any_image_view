@@ -33,13 +33,10 @@ class DemoApp extends StatelessWidget {
             imagePath: 'https://picsum.photos/250?image=0',
             height: 200,
             width: 300,
+            elevation: 5,
             padding: const EdgeInsets.all(10),
             margin: const EdgeInsets.all(10),
             borderRadius: BorderRadius.circular(10),
-            cachedNetHeight: 30,
-            cachedNetWidth: 30,
-            boxFit: BoxFit.contain,
-            alignment: Alignment.center,
             onTap: () {
               print('image tapped');
             },
@@ -52,20 +49,21 @@ class DemoApp extends StatelessWidget {
 ## Properties
 
 
-| Property         |    Default/Type    |
-|------------------|:------------------:|
-| network          |'https://photos/25.JPG',|
-| png              |'assets/png/car.png', |
-| svg              |'assets/svg/book.svg',|
-| lottie           |'assets/lottie/hot.json'|
-| height           |        60.0        |
-| width            |        60.0        |
-| margin           | EdgeInsetsGeometry |
-| padding          | EdgeInsetsGeometry |
-| alignment        |      Alignment     |
-| borderRadius     |   BorderRadius     |
-| boxFit           |        BoxFit      |
-| errorPlaceHolder |'assets/png/error.png'|
+| Property         |       Default/Type       |
+|------------------|:------------------------:|
+| network          | 'https://photos/25.JPG', |
+| png              |  'assets/png/car.png',   |
+| svg              |  'assets/svg/book.svg',  |
+| lottie           | 'assets/lottie/hot.json' |
+| height           |           60.0           |
+| width            |           60.0           |
+| elevation        |            5             |
+| margin           |    EdgeInsetsGeometry    |
+| padding          |    EdgeInsetsGeometry    |
+| alignment        |        Alignment         |
+| borderRadius     |       BorderRadius       |
+| boxFit           |          BoxFit          |
+| errorPlaceHolder |  'assets/png/error.png'  |
 
 ## Additional information
 `any_image_view` supports -
@@ -76,6 +74,7 @@ class DemoApp extends StatelessWidget {
 - Placeholder images using `errorPlaceHolder` parameter.
 - Custom border styles using `borderRadius` parameter.
 - Custom onTap callback using `onTap` parameter.
+- Custom elevation using `elevation` parameter.
 - Custom blend mode using `colorBlendMode` parameter.
 - Custom error message using `errorText` parameter.
 - Custom image properties using `height`, `width`, `fit`, `alignment`, `padding`, `margin` parameters.

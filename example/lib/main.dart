@@ -77,11 +77,12 @@ class MyHomePage extends StatelessWidget {
 
           //Network Image with CachedNetworkImage
           AnyImageView(
+            padding: const EdgeInsets.only(top: 15),
             imagePath:
                 'https://assets-global.website-files.com/6270e8022b05abb840d27d6f/6308d1ab615e60c9047c9d06_AppDev_Flutter-tools.png',
-            height: 200,
+            height: 150,
             width: 300,
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(15),
             boxFit: BoxFit.cover,
             alignment: Alignment.center,
             onTap: () {
