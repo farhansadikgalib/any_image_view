@@ -6,17 +6,20 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
+
 import 'generated/assets.dart';
 
 class AnyImageView extends StatelessWidget {
+// ignore_for_file: must_be_immutable
+
   String? imagePath;
   double? height;
   double? width;
-  Color? color;
+  double? elevation;
   BoxFit? boxFit;
   double? cachedNetHeight;
   double? cachedNetWidth;
-  final String errorPlaceHolder;
+  String errorPlaceHolder;
   Alignment? alignment;
   VoidCallback? onTap;
   EdgeInsetsGeometry? margin, padding;
@@ -32,7 +35,7 @@ class AnyImageView extends StatelessWidget {
     this.imagePath,
     this.height,
     this.width,
-    this.color,
+    this.elevation,
     this.boxFit,
     this.alignment,
     this.onTap,
@@ -47,17 +50,12 @@ class AnyImageView extends StatelessWidget {
     this.shape = BoxShape.rectangle,
   });
 
+
   @override
-  /* Widget build(BuildContext context) {
-    return alignment != null
-        ? Align(
-            alignment: alignment!,
-            child: _buildWidget(),
-          )
-        : _buildWidget();
-  }*/
   Widget build(BuildContext context) {
     return InkWell(
+      focusColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       onTap: onTap,
       child: Container(
         alignment: alignment,
@@ -66,13 +64,16 @@ class AnyImageView extends StatelessWidget {
         width: width,
         decoration: BoxDecoration(
           border: border,
-          borderRadius: borderRadius,
           boxShadow: boxShadow,
           shape: shape,
         ),
-        child: ClipRRect(
-            borderRadius: borderRadius ?? BorderRadius.zero,
-            child: imageTypeView()),
+        child: Material(
+          elevation: elevation ?? 0,
+          borderRadius: borderRadius ?? BorderRadius.zero,
+          child: ClipRRect(
+              borderRadius:  borderRadius ?? BorderRadius.zero,
+              child: imageTypeView()),
+        ),
       ),
     );
   }
@@ -86,7 +87,6 @@ class AnyImageView extends StatelessWidget {
             height: height,
             width: width,
             fit: boxFit ?? BoxFit.contain,
-            color: color,
           );
         case ImageType.json:
           return Lottie.asset(
@@ -95,7 +95,7 @@ class AnyImageView extends StatelessWidget {
             width: width,
             fit: boxFit ?? BoxFit.contain,
           );
-          case ImageType.zip:
+        case ImageType.zip:
           return Lottie.asset(
             imagePath!,
             height: height,
@@ -108,7 +108,6 @@ class AnyImageView extends StatelessWidget {
             height: height,
             width: width,
             fit: boxFit ?? BoxFit.cover,
-            color: color,
           );
         case ImageType.network:
           return CachedNetworkImage(
@@ -116,7 +115,6 @@ class AnyImageView extends StatelessWidget {
             width: width,
             fit: boxFit,
             imageUrl: imagePath!,
-            color: color,
             placeholder: (context, url) => SizedBox(
               height: cachedNetHeight ?? 30,
               width: cachedNetWidth ?? 30,
@@ -140,7 +138,6 @@ class AnyImageView extends StatelessWidget {
             height: height,
             width: width,
             fit: boxFit ?? BoxFit.cover,
-            color: color,
           );
       }
     }
@@ -154,16 +151,11 @@ extension ImageTypeExtension on String {
       return ImageType.network;
     } else if (endsWith('.svg')) {
       return ImageType.svg;
-    }
-    else if (endsWith('.json')) {
+    } else if (endsWith('.json')) {
       return ImageType.json;
-    }
-
-    else if (endsWith('.zip')) {
+    } else if (endsWith('.zip')) {
       return ImageType.zip;
-    }
-
-    else if (startsWith('file://')) {
+    } else if (startsWith('file://')) {
       return ImageType.file;
     } else {
       return ImageType.png;

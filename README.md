@@ -7,7 +7,7 @@ Customizing options for image properties and interaction makes it simple to inte
 ## Features
 
   - Display images from different sources: network, local files [XFile, File], Lottie, SVGs etc.
-  - Customization options for image properties such as height, width, color, fit, border radius etc.
+  - Customization options for image properties such as height, width, fit, border radius etc.
   - Placeholder image support for cases where the image is not available.
   - Support for onTap callback for user interaction.
   - Additional features like margin, border radius, and border styles.
@@ -52,21 +52,20 @@ class DemoApp extends StatelessWidget {
 ## Properties
 
 
-| Property    |    Default/Type    |
-|-------------|:------------------:|
-| imagePath   |'https://photos/25.JPG',|
-| imagePath   |'assets/png/car.png', |
-| imagePath   |'assets/svg/book.svg',|
-| imagePath   |'assets/lottie/hot.json'|
-| imagePath   |'assets/lottie/hot.zip'|
-| height      |        60.0        |
-| width       |        60.0        |
-| margin      | EdgeInsetsGeometry |
-| padding     | EdgeInsetsGeometry |
-| alignment   |      Alignment     |
-| borderRadius|   BorderRadius     |
-| boxFit      |        BoxFit      |
-| errorPlaceHolder|'assets/png/error.png'|
+| Property         |    Default/Type    |
+|------------------|:------------------:|
+| network          |'https://photos/25.JPG',|
+| png              |'assets/png/car.png', |
+| svg              |'assets/svg/book.svg',|
+| lottie           |'assets/lottie/hot.json'|
+| height           |        60.0        |
+| width            |        60.0        |
+| margin           | EdgeInsetsGeometry |
+| padding          | EdgeInsetsGeometry |
+| alignment        |      Alignment     |
+| borderRadius     |   BorderRadius     |
+| boxFit           |        BoxFit      |
+| errorPlaceHolder |'assets/png/error.png'|
 
 ## Additional information
 `any_image_view` supports -
