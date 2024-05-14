@@ -51,12 +51,12 @@ class DemoApp extends StatelessWidget {
 
 | Property         |       Default/Type       |
 |------------------|:------------------------:|
-| network          | 'https://photos/25.JPG', |
-| png              |  'assets/png/car.png',   |
-| svg              |  'assets/svg/book.svg',  |
+| network          | 'https://photos/25.JPG' |
+| png              |  'assets/png/car.png'   |
+| svg              |  'assets/svg/book.svg'  |
 | lottie           | 'assets/lottie/hot.json' |
-| height           |           60.0           |
-| width            |           60.0           |
+| height           |           50.0           |
+| width            |           50.0           |
 | elevation        |            5             |
 | margin           |    EdgeInsetsGeometry    |
 | padding          |    EdgeInsetsGeometry    |
@@ -82,6 +82,20 @@ class DemoApp extends StatelessWidget {
 
 ## Screenshot
 
-<img  src="https://github.com/farhansadikgalib/any_image_view/blob/main/raw/ss.png" height="400"></img>
+<table align="left" style="margin: 0px auto;">
+  <tr>
+    <td>
+        <div style="text-align: center;">
+            <img src="https://github.com/farhansadikgalib/any_image_view/blob/main/raw/gif.gif" height="250px"/>
+        </div>
+    </td>
+    <td>
+        <div style="text-align: center;">
+            <img src="https://github.com/farhansadikgalib/any_image_view/blob/main/raw/ss.png" height="250px"/>
+        </div>
+    </td>
+
+</table>
+
 
 
