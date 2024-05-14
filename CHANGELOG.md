@@ -1,3 +1,5 @@
 ## 1.0.1
 
-* little fixed
+* Initial release
+
+* Little fixed

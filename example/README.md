@@ -7,7 +7,7 @@ Customizing options for image properties and interaction makes it simple to inte
 ## Features
 
 - Display images from different sources: network, local files [XFile, File], Lottie, SVGs etc.
-- Customization options for image properties such as height, width, color, fit, border radius etc.
+- Customization options for image properties such as height, width, fit, border radius etc.
 - Placeholder image support for cases where the image is not available.
 - Support for onTap callback for user interaction.
 - Additional features like margin, border radius, and border styles.
@@ -19,7 +19,7 @@ To use this package, add `any_image_view` as a dependency in your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  any_image_view: ^1.0.0
+  any_image_view: ^1.0.1
 ```    
 
 ``` dart
@@ -33,13 +33,10 @@ class DemoApp extends StatelessWidget {
             imagePath: 'https://picsum.photos/250?image=0',
             height: 200,
             width: 300,
+            elevation: 5,
             padding: const EdgeInsets.all(10),
             margin: const EdgeInsets.all(10),
             borderRadius: BorderRadius.circular(10),
-            cachedNetHeight: 30,
-            cachedNetWidth: 30,
-            boxFit: BoxFit.contain,
-            alignment: Alignment.center,
             onTap: () {
               print('image tapped');
             },
@@ -52,21 +49,21 @@ class DemoApp extends StatelessWidget {
 ## Properties
 
 
-| Property    |    Default/Type    |
-|-------------|:------------------:|
-| imagePath   |'https://photos/25.JPG',|
-| imagePath   |'assets/png/car.png', |
-| imagePath   |'assets/svg/book.svg',|
-| imagePath   |'assets/lottie/hot.json'|
-| imagePath   |'assets/lottie/hot.zip'|
-| height      |        60.0        |
-| width       |        60.0        |
-| margin      | EdgeInsetsGeometry |
-| padding     | EdgeInsetsGeometry |
-| alignment   |      Alignment     |
-| borderRadius|   BorderRadius     |
-| boxFit      |        BoxFit      |
-| errorPlaceHolder|'assets/png/error.png'|
+| Property         |       Default/Type       |
+|------------------|:------------------------:|
+| network          | 'https://photos/25.JPG' |
+| png              |  'assets/png/car.png'   |
+| svg              |  'assets/svg/book.svg'  |
+| lottie           | 'assets/lottie/hot.json' |
+| height           |           50.0           |
+| width            |           50.0           |
+| elevation        |            5             |
+| margin           |    EdgeInsetsGeometry    |
+| padding          |    EdgeInsetsGeometry    |
+| alignment        |        Alignment         |
+| borderRadius     |       BorderRadius       |
+| boxFit           |          BoxFit          |
+| errorPlaceHolder |  'assets/png/error.png'  |
 
 ## Additional information
 `any_image_view` supports -
@@ -77,6 +74,7 @@ class DemoApp extends StatelessWidget {
 - Placeholder images using `errorPlaceHolder` parameter.
 - Custom border styles using `borderRadius` parameter.
 - Custom onTap callback using `onTap` parameter.
+- Custom elevation using `elevation` parameter.
 - Custom blend mode using `colorBlendMode` parameter.
 - Custom error message using `errorText` parameter.
 - Custom image properties using `height`, `width`, `fit`, `alignment`, `padding`, `margin` parameters.
@@ -84,5 +82,19 @@ class DemoApp extends StatelessWidget {
 
 ## Screenshot
 
-<img  src="https://github.com/farhansadikgalib/any_image_view/blob/main/raw/ss.png" height="400"></img>
+<table align="left" style="margin: 0px auto;">
+  <tr>
+    <td>
+        <div style="text-align: center;">
+            <img src="https://github.com/farhansadikgalib/any_image_view/blob/main/raw/gif.gif" height="250px"/>
+        </div>
+    </td>
+    <td>
+        <div style="text-align: center;">
+            <img src="https://github.com/farhansadikgalib/any_image_view/blob/main/raw/ss.png" height="250px"/>
+        </div>
+    </td>
+
+</table>
+
 
