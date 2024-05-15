@@ -19,7 +19,7 @@ To use this package, add `any_image_view` as a dependency in your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  any_image_view: ^1.0.2
+  any_image_view: ^1.0.3
 ```    
 
 ``` dart
