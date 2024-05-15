@@ -80,9 +80,8 @@ class DemoApp extends StatelessWidget {
 - Placeholder images using `errorPlaceHolder` parameter.
 - Custom border styles using `borderRadius` parameter.
 - Custom onTap callback using `onTap` parameter.
-- Custom error message using `errorText` parameter.
 - Custom image properties using `height`, `width`, `fit`, `alignment`, `padding`, `margin` parameters.
-- Custom image properties using `cachedNetHeight`, `cachedNetWidth` parameters.
+- Custom image properties using `cachedNetPlaceholderHeight`, `cachedNetPlaceholderWidth` parameters.
 
 ## Screenshot
 
