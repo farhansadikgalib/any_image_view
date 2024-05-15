@@ -15,10 +15,9 @@ class AnyImageView extends StatelessWidget {
   String? imagePath;
   double? height;
   double? width;
-  double? elevation;
   BoxFit? boxFit;
-  double? cachedNetHeight;
-  double? cachedNetWidth;
+  double? cachedNetPlaceholderHeight;
+  double? cachedNetPlaceholderWidth;
   String errorPlaceHolder;
   Alignment? alignment;
   VoidCallback? onTap;
@@ -35,7 +34,6 @@ class AnyImageView extends StatelessWidget {
     this.imagePath,
     this.height,
     this.width,
-    this.elevation,
     this.boxFit,
     this.alignment,
     this.onTap,
@@ -43,13 +41,12 @@ class AnyImageView extends StatelessWidget {
     this.margin,
     this.padding,
     this.border,
-    this.cachedNetHeight,
-    this.cachedNetWidth,
+    this.cachedNetPlaceholderHeight,
+    this.cachedNetPlaceholderWidth,
     this.errorPlaceHolder = Assets.imagesNoImageFound,
     this.boxShadow,
     this.shape = BoxShape.rectangle,
   });
-
 
   @override
   Widget build(BuildContext context) {
@@ -67,13 +64,9 @@ class AnyImageView extends StatelessWidget {
           boxShadow: boxShadow,
           shape: shape,
         ),
-        child: Material(
-          elevation: elevation ?? 0,
-          borderRadius: borderRadius ?? BorderRadius.zero,
-          child: ClipRRect(
-              borderRadius:  borderRadius ?? BorderRadius.zero,
-              child: imageTypeView()),
-        ),
+        child: ClipRRect(
+            borderRadius: borderRadius ?? BorderRadius.zero,
+            child: imageTypeView()),
       ),
     );
   }
@@ -116,8 +109,8 @@ class AnyImageView extends StatelessWidget {
             fit: boxFit,
             imageUrl: imagePath!,
             placeholder: (context, url) => SizedBox(
-              height: cachedNetHeight ?? 30,
-              width: cachedNetWidth ?? 30,
+              height: cachedNetPlaceholderHeight ?? 30,
+              width: cachedNetPlaceholderWidth ?? 30,
               child: LinearProgressIndicator(
                 color: Colors.grey.shade200,
                 backgroundColor: Colors.grey.shade100,

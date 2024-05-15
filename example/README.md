@@ -19,7 +19,7 @@ To use this package, add `any_image_view` as a dependency in your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  any_image_view: ^1.0.1
+  any_image_view: ^1.0.2
 ```    
 
 ``` dart
@@ -49,21 +49,27 @@ class DemoApp extends StatelessWidget {
 ## Properties
 
 
-| Property         |       Default/Type       |
-|------------------|:------------------------:|
-| network          | 'https://photos/25.JPG' |
-| png              |  'assets/png/car.png'   |
-| svg              |  'assets/svg/book.svg'  |
-| lottie           | 'assets/lottie/hot.json' |
-| height           |           50.0           |
-| width            |           50.0           |
-| elevation        |            5             |
-| margin           |    EdgeInsetsGeometry    |
-| padding          |    EdgeInsetsGeometry    |
-| alignment        |        Alignment         |
-| borderRadius     |       BorderRadius       |
-| boxFit           |          BoxFit          |
-| errorPlaceHolder |  'assets/png/error.png'  |
+| Property                   |       Default/Type       |
+|----------------------------|:------------------------:|
+| network                    | 'https://photos/25.JPG'  |
+| png                        |   'assets/png/car.png'   |
+| svg                        |  'assets/svg/book.svg'   |
+| lottie                     | 'assets/lottie/hot.json' |
+| height                     |           50.0           |
+| width                      |           50.0           |
+| margin                     |    EdgeInsetsGeometry    |
+| padding                    |    EdgeInsetsGeometry    |
+| alignment                  |        Alignment         |
+| borderRadius               |       BorderRadius       |
+| boxFit                     |          BoxFit          |
+| alignment                  |        Alignment         |
+| border                     |          Border          |
+| borderRadius               |       BorderRadius       |
+| onTap                      |         Function         |
+| errorPlaceHolder           |  'assets/png/error.png'  |
+| cachedNetPlaceholderHeight |            25            |
+| cachedNetPlaceholderWidth  |            25            |
+
 
 ## Additional information
 `any_image_view` supports -
@@ -74,8 +80,6 @@ class DemoApp extends StatelessWidget {
 - Placeholder images using `errorPlaceHolder` parameter.
 - Custom border styles using `borderRadius` parameter.
 - Custom onTap callback using `onTap` parameter.
-- Custom elevation using `elevation` parameter.
-- Custom blend mode using `colorBlendMode` parameter.
 - Custom error message using `errorText` parameter.
 - Custom image properties using `height`, `width`, `fit`, `alignment`, `padding`, `margin` parameters.
 - Custom image properties using `cachedNetHeight`, `cachedNetWidth` parameters.

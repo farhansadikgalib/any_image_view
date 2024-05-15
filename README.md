@@ -19,7 +19,7 @@ To use this package, add `any_image_view` as a dependency in your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  any_image_view: ^1.0.0
+  any_image_view: ^1.0.2
 ```    
 
 ``` dart
@@ -33,7 +33,6 @@ class DemoApp extends StatelessWidget {
             imagePath: 'https://picsum.photos/250?image=0',
             height: 200,
             width: 300,
-            elevation: 5,
             padding: const EdgeInsets.all(10),
             margin: const EdgeInsets.all(10),
             borderRadius: BorderRadius.circular(10),

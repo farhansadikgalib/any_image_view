@@ -34,7 +34,6 @@ class MyHomePage extends StatelessWidget {
         children: <Widget>[
           //Local Asset Image
 
-
           //Lottie Animation
           AnyImageView(
             imagePath: "assets/lottie/flutter_mobile.json",
@@ -51,15 +50,11 @@ class MyHomePage extends StatelessWidget {
             height: 300,
             borderRadius: BorderRadius.circular(30),
             boxFit: BoxFit.cover,
-            elevation: 5,
-
             onTap: () {
               print('image tapped');
             },
           ),
           //Local Asset Image
-
-
 
           //SVG Image
 

@@ -1,6 +1,6 @@
 name: any_image_view
 description: "A special Flutter package for displaying all kinds of images, including jpg, png,jpeg, SVG, lottie, and XFile, including network images with caching."
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/farhansadikgalib/any_image_view
 
 environment:

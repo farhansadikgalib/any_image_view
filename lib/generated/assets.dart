@@ -3,5 +3,4 @@ class Assets {
   Assets._();
 
   static const String imagesNoImageFound = 'assets/images/no_image_found.png';
-
 }
