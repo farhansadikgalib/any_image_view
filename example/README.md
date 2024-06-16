@@ -14,7 +14,7 @@ Customizing options for image properties and interaction makes it simple to inte
 
 ## Preview
 
-<img src="https://github.com/farhansadikgalib/any_image_view/blob/main/raw/gif.gif" width="300"/>
+<img src="https://raw.githubusercontent.com/farhansadikgalib/any_image_view/main/raw/gif.gif" width="300"/>
 
 ## Getting Started
 
@@ -22,7 +22,7 @@ Add the latest version of package to your `pubspec.yaml` (and run `flutter pub g
 
 ```yaml
 dependencies:
-  any_image_view: ^1.0.4
+  any_image_view: ^1.0.5
 ```
 Import the package and use it in your Flutter App.
 
@@ -135,12 +135,12 @@ Use any of the available properties to customize your image as you see fit.
   <tr>
     <td>
         <div style="text-align: center;">
-            <img src="https://github.com/farhansadikgalib/any_image_view/blob/main/raw/gif.gif" height="250px"/>
+            <img src="https://raw.githubusercontent.com/farhansadikgalib/any_image_view/main/raw/gif.gif" height="250px"/>
         </div>
     </td>
     <td>
         <div style="text-align: center;">
-            <img src="https://github.com/farhansadikgalib/any_image_view/blob/main/raw/ss.png" height="250px"/>
+            <img src="https://raw.githubusercontent.com/farhansadikgalib/any_image_view/main/raw/ss.png" height="250px"/>
         </div>
     </td>
 
