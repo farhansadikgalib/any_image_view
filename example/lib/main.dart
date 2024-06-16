@@ -65,7 +65,7 @@ class MyHomePage extends StatelessWidget {
             onTap: () {
               print('image tapped');
             },
-            errorPlaceHolder: 'assets/png/error.png',
+            errorPlaceHolder: 'assets/png/not_found.png',
           ),
 
           //SVG Image
@@ -83,8 +83,9 @@ class MyHomePage extends StatelessWidget {
             onTap: () {
               print('image tapped');
             },
-            errorPlaceHolder: 'assets/png/error.png',
+            errorPlaceHolder: 'assets/png/not_found.png',
           ),
+
 
           //Network Image with CachedNetworkImage
         ],

@@ -1,4 +1,4 @@
-## 1.0.3
+## 1.0.4
 
 * Initial release
 
@@ -7,3 +7,5 @@
 * Elevation is removed
 
 * Documentation updated 
+
+* The dependency has been fixed and updated.

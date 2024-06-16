@@ -1,17 +1,15 @@
 library any_image_view;
 
 import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
 
-import 'generated/assets.dart';
 
 class AnyImageView extends StatelessWidget {
-// ignore_for_file: must_be_immutable
-
+  // ignore_for_file: must_be_immutable
+  // @immutable
   String? imagePath;
   double? height;
   double? width;
@@ -43,7 +41,7 @@ class AnyImageView extends StatelessWidget {
     this.border,
     this.cachedNetPlaceholderHeight,
     this.cachedNetPlaceholderWidth,
-    this.errorPlaceHolder = Assets.imagesNoImageFound,
+    this.errorPlaceHolder = 'assets/images/not_found.png',
     this.boxShadow,
     this.shape = BoxShape.rectangle,
   });

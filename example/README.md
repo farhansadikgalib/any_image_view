@@ -12,16 +12,26 @@ Customizing options for image properties and interaction makes it simple to inte
 - Support for onTap callback for user interaction.
 - Additional features like margin, border radius, and border styles.
 
+## Preview
+
+<img src="https://github.com/farhansadikgalib/any_image_view/blob/main/raw/gif.gif" width="300"/>
+
 ## Getting Started
 
-To use this package, add `any_image_view` as a dependency in your `pubspec.yaml` file.
-
+Add the latest version of package to your `pubspec.yaml` (and run `flutter pub get`):
 
 ```yaml
 dependencies:
-  any_image_view: ^1.0.3
-```    
+  any_image_view: ^1.0.4
+```
+Import the package and use it in your Flutter App.
 
+```import
+import 'package:any_image_view/any_image_view.dart';
+```
+<hr>
+
+## Example usage
 ``` dart
 class DemoApp extends StatelessWidget {
   const DemoApp({super.key});
@@ -33,18 +43,19 @@ class DemoApp extends StatelessWidget {
             imagePath: 'https://picsum.photos/250?image=0',
             height: 200,
             width: 300,
-            elevation: 5,
             padding: const EdgeInsets.all(10),
             margin: const EdgeInsets.all(10),
             borderRadius: BorderRadius.circular(10),
             onTap: () {
               print('image tapped');
             },
-            errorPlaceHolder: 'assets/png/car.png',
+            errorPlaceHolder: 'assets/png/not_found.png',
           ));
   }
 }
 ```
+
+
 
 ## Properties
 
@@ -69,6 +80,41 @@ class DemoApp extends StatelessWidget {
 | errorPlaceHolder           |  'assets/png/error.png'  |
 | cachedNetPlaceholderHeight |            25            |
 | cachedNetPlaceholderWidth  |            25            |
+
+
+Use any of the available properties to customize your image as you see fit.
+
+``` dart
+          AnyImageView(
+            imagePath:
+                'https://assets-global.website-files.com/6270e8022b05abb840d27d6f/6308d1ab615e60c9047c9d06_AppDev_Flutter-tools.png',
+            margin: const EdgeInsets.all(30),
+            padding: const EdgeInsets.all(30),
+            width: 100,
+            height: 300,
+            alignment: Alignment.centerLeft,
+            shape: BoxShape.rectangle,
+            errorPlaceHolder: 'assets/png/not_found.png',
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blue.shade50,
+                blurRadius: 10,
+                spreadRadius: 5,
+                offset: const Offset(0, 0),
+              )
+            ],
+            cachedNetPlaceholderHeight: 100,
+            cachedNetPlaceholderWidth: 100,
+            borderRadius: BorderRadius.circular(30),
+            boxFit: BoxFit.cover,
+            border: Border.all(color: Colors.blue, width: 2),
+            onTap: () {
+              print('image tapped');
+            },
+          ),
+
+```
+
 
 
 ## Additional information
