@@ -86,7 +86,6 @@ class MyHomePage extends StatelessWidget {
             errorPlaceHolder: 'assets/png/not_found.png',
           ),
 
-
           //Network Image with CachedNetworkImage
         ],
       ),

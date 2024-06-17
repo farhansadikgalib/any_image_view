@@ -1,8 +1,9 @@
-
 ## Any Image View
 
-A special Flutter package for displaying all kinds of images, including jpg, png, SVG, lottie, and XFile, including network images with caching.
-Customizing options for image properties and interaction makes it simple to integrate into your Flutter projects.
+A special Flutter package for displaying all kinds of images, including jpg, png, SVG, lottie, and
+XFile, including network images with caching.
+Customizing options for image properties and interaction makes it simple to integrate into your
+Flutter projects.
 
 ## Features
 
@@ -22,16 +23,19 @@ Add the latest version of package to your `pubspec.yaml` (and run `flutter pub g
 
 ```yaml
 dependencies:
-  any_image_view: ^1.0.5
+  any_image_view: ^1.0.6
 ```
+
 Import the package and use it in your Flutter App.
 
 ```import
 import 'package:any_image_view/any_image_view.dart';
 ```
+
 <hr>
 
 ## Example usage
+
 ``` dart
 class DemoApp extends StatelessWidget {
   const DemoApp({super.key});
@@ -55,10 +59,7 @@ class DemoApp extends StatelessWidget {
 }
 ```
 
-
-
 ## Properties
-
 
 | Property                   |       Default/Type       |
 |----------------------------|:------------------------:|
@@ -80,7 +81,6 @@ class DemoApp extends StatelessWidget {
 | errorPlaceHolder           |  'assets/png/error.png'  |
 | cachedNetPlaceholderHeight |            25            |
 | cachedNetPlaceholderWidth  |            25            |
-
 
 Use any of the available properties to customize your image as you see fit.
 
@@ -115,10 +115,10 @@ Use any of the available properties to customize your image as you see fit.
 
 ```
 
-
-
 ## Additional information
+
 `any_image_view` supports -
+
 - SVG images using `flutter_svg` package.
 - Lottie animations using `lottie` package.
 - Network images using `cached_network_image` package.
@@ -126,24 +126,39 @@ Use any of the available properties to customize your image as you see fit.
 - Placeholder images using `errorPlaceHolder` parameter.
 - Custom border styles using `borderRadius` parameter.
 - Custom onTap callback using `onTap` parameter.
-- Custom image properties using `height`, `width`, `fit`, `alignment`, `padding`, `margin` parameters.
-- Custom image properties using `cachedNetPlaceholderHeight`, `cachedNetPlaceholderWidth` parameters.
+- Custom image properties using `height`, `width`, `fit`, `alignment`, `padding`, `margin`
+  parameters.
+- Custom image properties using `cachedNetPlaceholderHeight`, `cachedNetPlaceholderWidth`
+  parameters.
 
-## Screenshot
+[//]: # (## Screenshot)
 
-<table align="left" style="margin: 0px auto;">
-  <tr>
-    <td>
-        <div style="text-align: center;">
-            <img src="https://raw.githubusercontent.com/farhansadikgalib/any_image_view/main/raw/gif.gif" height="250px"/>
-        </div>
-    </td>
-    <td>
-        <div style="text-align: center;">
-            <img src="https://raw.githubusercontent.com/farhansadikgalib/any_image_view/main/raw/ss.png" height="250px"/>
-        </div>
-    </td>
+[//]: # ()
+[//]: # (<table align="left" style="margin: 0px auto;">)
 
-</table>
+[//]: # (  <tr>)
+
+[//]: # (    <td>)
+
+[//]: # (        <div style="text-align: center;">)
+
+[//]: # (            <img src="https://raw.githubusercontent.com/farhansadikgalib/any_image_view/main/raw/gif.gif" height="250px"/>)
+
+[//]: # (        </div>)
+
+[//]: # (    </td>)
+
+[//]: # (    <td>)
+
+[//]: # (        <div style="text-align: center;">)
+
+[//]: # (            <img src="https://raw.githubusercontent.com/farhansadikgalib/any_image_view/main/raw/ss.png" height="250px"/>)
+
+[//]: # (        </div>)
+
+[//]: # (    </td>)
+
+[//]: # ()
+[//]: # (</table>)
 
 
