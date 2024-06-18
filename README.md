@@ -162,3 +162,7 @@ Use any of the available properties to customize your image as you see fit.
 [//]: # (</table>)
 
 
+## Visitors Count
+
+<img  src="https://profile-counter.glitch.me/any_image_view/count.svg" alt="Visitor Count"/>
+
