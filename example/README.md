@@ -23,7 +23,7 @@ Add the latest version of package to your `pubspec.yaml` (and run `flutter pub g
 
 ```yaml
 dependencies:
-  any_image_view: ^1.0.6
+  any_image_view: ^1.1.0
 ```
 
 Import the package and use it in your Flutter App.

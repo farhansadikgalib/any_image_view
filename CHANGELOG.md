@@ -1,4 +1,4 @@
-## 1.0.6
+## 1.1.0
 
 * Initial release
 
@@ -9,3 +9,4 @@
 * Documentation updated 
 
 * The dependency has been fixed and updated.
+

@@ -7,31 +7,58 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
 
-// This AnyImageView Class is using for showing any type of images in flutter
+/// This `AnyImageView` class is used for displaying any type of image in Flutter.
+/// It supports various image types such as SVG, JSON (Lottie), ZIP (Lottie),
+/// file-based images, network images, and asset images.
+/// It also provides customization options for size, alignment, border, shape,
+/// and placeholder handling.
 class AnyImageView extends StatelessWidget {
-  // ignore_for_file: must_be_immutable
-  String? imagePath; // Image Path can be any type of image
-  double? height; // Height of the Image
-  double? width; // Width of the Image
-  BoxFit? boxFit; // BoxFit of the Image
-  double?
-      cachedNetPlaceholderHeight; // Height of the Placeholder for CachedNetworkImage
-  double?
-      cachedNetPlaceholderWidth; // Width of the Placeholder for CachedNetworkImage
-  String errorPlaceHolder; // Error Placeholder for CachedNetworkImage
-  Alignment? alignment; // Alignment of the Image
-  VoidCallback? onTap; // OnTap of the Image
-  EdgeInsetsGeometry? margin, padding; // Margin and Padding of the Image
-  BorderRadius? borderRadius; // BorderRadius of the Image
-  BoxBorder? border; // Border of the Image
-  List<BoxShadow>? boxShadow; // BoxShadow of the Image
-  BoxShape shape; // Shape of the Image
+  /// The path of the image. It can be a network URL, file path, or asset path.
+  String? imagePath;
 
-  ///a [AnyImageView] it can be used for showing any type of images
-  /// it will shows the placeholder image if image is not found on network image
-  ///
-  ///
-  /// Constructs a [AnyImageView] object.
+  /// The height of the image.
+  double? height;
+
+  /// The width of the image.
+  double? width;
+
+  /// The `BoxFit` property to define how the image should be fitted inside its container.
+  BoxFit? boxFit;
+
+  /// The height of the placeholder for `CachedNetworkImage`.
+  double? cachedNetPlaceholderHeight;
+
+  /// The width of the placeholder for `CachedNetworkImage`.
+  double? cachedNetPlaceholderWidth;
+
+  /// The placeholder image to display when the network image fails to load.
+  String errorPlaceHolder;
+
+  /// The alignment of the image within its container.
+  Alignment? alignment;
+
+  /// The callback function to handle tap events on the image.
+  VoidCallback? onTap;
+
+  /// The margin around the image.
+  EdgeInsetsGeometry? margin;
+
+  /// The padding inside the image container.
+  EdgeInsetsGeometry? padding;
+
+  /// The border radius of the image container.
+  BorderRadius? borderRadius;
+
+  /// The border of the image container.
+  BoxBorder? border;
+
+  /// The shadow effects applied to the image container.
+  List<BoxShadow>? boxShadow;
+
+  /// The shape of the image container (e.g., rectangle or circle).
+  BoxShape shape;
+
+  /// Constructs an `AnyImageView` object with customizable properties.
   AnyImageView({
     super.key,
     this.imagePath,
@@ -51,38 +78,35 @@ class AnyImageView extends StatelessWidget {
     this.shape = BoxShape.rectangle,
   });
 
-  /// Constructs a [AnyImageView] object.
-
-  ///a [AnyImageView] it can be used for showing any type of images
+  /// Builds the widget tree for the `AnyImageView`.
+  /// It wraps the image in an `InkWell` to handle tap events and applies
+  /// the specified decorations and properties.
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      focusColor: Colors.transparent, // to set the focus color
-      highlightColor: Colors.transparent, // to set the highlight color
-      onTap: onTap, //to set the onTap function
+      focusColor: Colors.transparent, // Removes focus color
+      highlightColor: Colors.transparent, // Removes highlight color
+      onTap: onTap, // Handles tap events
       child: Container(
-        alignment: alignment,
-        //to set the alignment
-        padding: padding,
-        //to set the padding
-        height: height,
-        // to set the height
-        width: width,
-        // to set the width
+        alignment: alignment, // Sets alignment
+        padding: padding, // Sets padding
+        height: height, // Sets height
+        width: width, // Sets width
         decoration: BoxDecoration(
-          border: border,
-          boxShadow: boxShadow,
-          shape: shape,
+          border: border, // Sets border
+          boxShadow: boxShadow, // Sets shadow effects
+          shape: shape, // Sets shape
         ),
-        // to set the decoration
         child: ClipRRect(
-            borderRadius: borderRadius ?? BorderRadius.zero,
-            // to set the borderRadius
-            child: imageTypeView()), // to set the imageTypeView
+          borderRadius: borderRadius ?? BorderRadius.zero, // Sets border radius
+          child: imageTypeView(), // Displays the appropriate image type
+        ),
       ),
     );
   }
 
+  /// Determines the type of image to display based on the `imagePath` extension
+  /// and returns the corresponding widget.
   Widget imageTypeView() {
     if (imagePath != null) {
       switch (imagePath!.imageType) {
@@ -92,28 +116,28 @@ class AnyImageView extends StatelessWidget {
             height: height,
             width: width,
             fit: boxFit ?? BoxFit.contain,
-          ); // to set the SvgPicture
+          ); // Displays an SVG image
         case ImageType.json:
           return Lottie.asset(
             imagePath!,
             height: height,
             width: width,
             fit: boxFit ?? BoxFit.contain,
-          ); // to set the Lottie.asset
+          ); // Displays a Lottie animation (JSON)
         case ImageType.zip:
           return Lottie.asset(
             imagePath!,
             height: height,
             width: width,
             fit: boxFit ?? BoxFit.contain,
-          ); // to set the Lottie.asset
+          ); // Displays a Lottie animation (ZIP)
         case ImageType.file:
           return Image.file(
             File(imagePath!),
             height: height,
             width: width,
             fit: boxFit ?? BoxFit.cover,
-          ); // to set the Image.file
+          ); // Displays an image from a file
         case ImageType.network:
           return CachedNetworkImage(
             height: height,
@@ -127,15 +151,15 @@ class AnyImageView extends StatelessWidget {
                 color: Colors.grey.shade200,
                 backgroundColor: Colors.grey.shade100,
               ),
-            ),
+            ), // Displays a placeholder while loading
             errorWidget: (context, url, error) => Image.asset(
               errorPlaceHolder,
               height: height,
               width: width,
               fit: boxFit ?? BoxFit.cover,
               package: 'any_image_view',
-            ),
-          ); // to set the CachedNetworkImage
+            ), // Displays an error placeholder
+          );
         case ImageType.png:
         default:
           return Image.asset(
@@ -143,35 +167,32 @@ class AnyImageView extends StatelessWidget {
             height: height,
             width: width,
             fit: boxFit ?? BoxFit.cover,
-          ); // to set the Image.asset
+          ); // Displays an asset image
       }
     }
-    return const SizedBox();
+    return const SizedBox(); // Returns an empty widget if no image path is provided
   }
 }
 
-///a [AnyImageView] it can be used for showing any type of images
-
-// Image Type Extension defines image type of the image path
+/// Extension on `String` to determine the type of image based on its path or URL.
 extension ImageTypeExtension on String {
+  /// Returns the `ImageType` based on the file extension or URL prefix.
   ImageType get imageType {
     if (startsWith('http') || startsWith('https')) {
-      return ImageType.network;
+      return ImageType.network; // Network image
     } else if (endsWith('.svg')) {
-      return ImageType.svg;
+      return ImageType.svg; // SVG image
     } else if (endsWith('.json')) {
-      return ImageType.json;
+      return ImageType.json; // Lottie JSON animation
     } else if (endsWith('.zip')) {
-      return ImageType.zip;
+      return ImageType.zip; // Lottie ZIP animation
     } else if (startsWith('file://')) {
-      return ImageType.file;
+      return ImageType.file; // File-based image
     } else {
-      return ImageType.png;
+      return ImageType.png; // Default to PNG asset image
     }
   }
 }
-// Image Type Extension defines image type of the image path
 
-// Image Type Enums
+/// Enum to represent different types of images.
 enum ImageType { svg, png, network, json, zip, file, unknown }
-// Image Type Enums
