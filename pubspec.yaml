@@ -13,11 +13,6 @@ homepage: https://github.com/farhansadikgalib/any_image_view
 repository: https://github.com/farhansadikgalib/any_image_view/blob/main/README.md
 issue_tracker: https://github.com/farhansadikgalib/any_image_view/issues
 
-publish_to: https://pub.dev
-publisher: farhansadikgalib.com
-authors:
-  - Farhan Sadik Galib <
-
 
 screenshots:
   - description: "any image view"
