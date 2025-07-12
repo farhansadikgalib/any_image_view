@@ -13,14 +13,9 @@ homepage: https://github.com/farhansadikgalib/any_image_view
 repository: https://github.com/farhansadikgalib/any_image_view/blob/main/README.md
 issue_tracker: https://github.com/farhansadikgalib/any_image_view/issues
 
-
 screenshots:
   - description: "any image view"
     path: raw/ss.png
-
-
-
-
 
 environment:
   sdk: ^3.2.6
