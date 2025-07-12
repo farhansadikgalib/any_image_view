@@ -1,3 +1,17 @@
+## 1.3.0 – 🛡️ Robust & Reliable Release!
+- 🛡️ **Enhanced Error Handling:** Comprehensive error handling for all image types (file, SVG, Lottie, asset, network)
+- 🔒 **Safe XFile Support:** Proper null safety for XFile paths with validation
+- ✅ **File Validation:** Automatic file existence checks before loading
+- 🎯 **Unified Error Fallback:** Consistent error handling across all image types
+- ⚡ **Improved Loading States:** Consistent loading widgets for all image types
+- 💾 **Memory Management:** Added memory cache hints for network images
+- 🧹 **Code Quality:** Removed unused code and improved overall robustness
+- 🔧 **Linter Fixes:** Updated analysis configuration for better compatibility
+- 🐛 **Bug Fixes:** Fixed potential crashes and improved stability
+- 📚 **Documentation:** Enhanced code comments and error handling examples
+
+---
+
 ## 1.2.0 – 🚀 Big Update!
 - 🗂️ **Full XFile Support:** Seamless integration with image picker
 - 🆕 **New:** `xFile` parameter added to `AnyImageView` constructor

@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Flutter](https://img.shields.io/badge/Flutter-3.4.3+-blue.svg)](https://flutter.dev)
 
-> ## **The Ultimate Flutter Image Widget** - Display any image type with just one widget! 🚀
+## **Display any image format in Flutter.**
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/farhansadikgalib/any_image_view/main/raw/gif.gif" 
@@ -25,6 +25,7 @@ Tired of juggling multiple image widgets? Say goodbye to complex image handling!
 - ✅ **Asset images** from your app bundle
 - ✅ **Advanced error handling** with custom widgets
 - ✅ **Smooth animations** with configurable fade duration
+- 🛡️ **Robust & Reliable** - Comprehensive error handling and validation
 
 **No more headaches, just beautiful images!** ✨
 
@@ -35,7 +36,7 @@ Tired of juggling multiple image widgets? Say goodbye to complex image handling!
 ### 1️⃣ **Add to pubspec.yaml**
 ```yaml
 dependencies:
-  any_image_view: ^1.2.0
+  any_image_view: ^1.3.0
 ```
 
 ### 2️⃣ **Run this command**
@@ -483,6 +484,7 @@ AnyImageView(
 imagePath: imageUrl,
 onTap: () => _handleTap(),
 ).semanticsLabel('User profile picture'),
+)
 ```
 
 ### **4. Custom Animations**

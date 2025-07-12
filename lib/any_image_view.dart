@@ -45,7 +45,7 @@ class AnyImageView extends StatelessWidget {
   final BoxShape shape;
 
   /// Path to the placeholder image displayed on error.
-  final String? errorPlaceHolder;
+  final String errorPlaceHolder;
 
   /// Widget displayed while the image is loading.
   final Widget? placeholderWidget;
@@ -57,6 +57,18 @@ class AnyImageView extends StatelessWidget {
   final Duration fadeDuration;
 
   /// Constructor for [AnyImageView].
+  ///
+  /// [imagePath] specifies the image source.
+  /// [height] and [width] define the dimensions of the image container.
+  /// [fit] determines how the image is inscribed into the container.
+  /// [alignment] aligns the image within the container.
+  /// [onTap] is a callback triggered when the image is tapped.
+  /// [margin] and [padding] define spacing around and inside the container.
+  /// [borderRadius], [border], and [boxShadow] customize the container's appearance.
+  /// [shape] specifies the container's shape.
+  /// [errorPlaceHolder] is the path to the placeholder image displayed on error.
+  /// [placeholderWidget] and [errorWidget] are widgets displayed during loading or error states.
+  /// [fadeDuration] sets the duration for fade-in animations.
   const AnyImageView({
     super.key,
     this.imagePath,
@@ -71,21 +83,20 @@ class AnyImageView extends StatelessWidget {
     this.border,
     this.boxShadow,
     this.shape = BoxShape.rectangle,
-    this.errorPlaceHolder,
+    String? errorPlaceHolder,
     this.placeholderWidget,
     this.errorWidget,
     this.fadeDuration = const Duration(milliseconds: 400),
-  });
-
-  /// Default asset path for the error placeholder image.
-  String get _defaultErrorAsset =>
-      'packages/any_image_view/assets/images/not_found.png';
+  }) : errorPlaceHolder = errorPlaceHolder ?? 'assets/images/not_found.png';
 
   @override
   Widget build(BuildContext context) {
+    // Builds the main widget structure, including the container and image.
     return InkWell(
       focusColor: Colors.transparent,
       highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      hoverColor: Colors.transparent,
       onTap: onTap,
       child: Container(
         alignment: alignment,
@@ -111,21 +122,52 @@ class AnyImageView extends StatelessWidget {
 
   /// Builds the appropriate image widget based on the [imagePath] type.
   Widget _buildImage() {
+    // Fallback widget displayed on error.
     Widget errorFallback() =>
         errorWidget ??
         Image.asset(
-          errorPlaceHolder ?? _defaultErrorAsset,
+          errorPlaceHolder,
           height: height,
           width: width,
           fit: fit ?? BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // Fallback to a simple error widget if asset loading fails.
+            return Container(
+              height: height,
+              width: width,
+              color: Colors.grey[300],
+              child: Icon(
+                Icons.error_outline,
+                color: Colors.grey[600],
+                size: (height ?? 100) * 0.3,
+              ),
+            );
+          },
         );
 
-    if (imagePath is XFile) {
-      return _buildFileImage((imagePath as XFile).path, errorFallback);
-    } else if (imagePath is String) {
-      return _buildStringImage(imagePath as String, errorFallback);
+    // Handles null imagePath.
+    if (imagePath == null) {
+      return errorFallback();
     }
-    return const SizedBox();
+
+    // Handles XFile type imagePath.
+    if (imagePath is XFile) {
+      final xFile = imagePath as XFile;
+      final path = xFile.path;
+      if (path == null || path.isEmpty) {
+        return errorFallback();
+      }
+      return _buildFileImage(path, errorFallback);
+    } else if (imagePath is String) {
+      // Handles String type imagePath.
+      final path = imagePath as String;
+      if (path.isEmpty) {
+        return errorFallback();
+      }
+      return _buildStringImage(path, errorFallback);
+    }
+
+    return errorFallback();
   }
 
   /// Builds an image widget for a local file.
@@ -133,13 +175,34 @@ class AnyImageView extends StatelessWidget {
   /// [path] is the file path.
   /// [errorFallback] is the widget displayed on error.
   Widget _buildFileImage(String path, Widget Function() errorFallback) {
-    return FadeInImage(
-      placeholder: AssetImage(errorPlaceHolder ?? _defaultErrorAsset),
-      image: FileImage(File(path)),
-      height: height,
-      width: width,
-      fit: fit ?? BoxFit.cover,
-      imageErrorBuilder: (_, __, ___) => errorFallback(),
+    // Validate file existence.
+    final file = File(path);
+    if (!file.existsSync()) {
+      return errorFallback();
+    }
+
+    return FutureBuilder<bool>(
+      future: file.exists(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _buildLoadingWidget();
+        }
+
+        if (snapshot.hasError || !(snapshot.data ?? false)) {
+          return errorFallback();
+        }
+
+        return FadeInImage(
+          placeholder: AssetImage(errorPlaceHolder),
+          image: FileImage(file),
+          height: height,
+          width: width,
+          fit: fit ?? BoxFit.cover,
+          imageErrorBuilder: (context, error, stackTrace) => errorFallback(),
+          placeholderErrorBuilder: (context, error, stackTrace) =>
+              errorFallback(),
+        );
+      },
     );
   }
 
@@ -150,58 +213,72 @@ class AnyImageView extends StatelessWidget {
   Widget _buildStringImage(String path, Widget Function() errorFallback) {
     switch (path.imageType) {
       case ImageType.svg:
+        // Handles SVG images.
         return SvgPicture.asset(
           path,
           height: height,
           width: width,
           fit: fit ?? BoxFit.contain,
-          placeholderBuilder: (_) =>
-              placeholderWidget ??
-              SizedBox(
-                height: height,
-                width: width,
-                child: LinearProgressIndicator(),
-              ),
-          errorBuilder: (_, __, ___) => errorFallback(),
+          placeholderBuilder: (_) => _buildLoadingWidget(),
         );
       case ImageType.json:
       case ImageType.zip:
+        // Handles Lottie animations.
         return Lottie.asset(
           path,
           height: height,
           width: width,
           fit: fit ?? BoxFit.contain,
-          errorBuilder: (_, __, ___) => errorFallback(),
         );
       case ImageType.network:
+        // Handles network images.
         return CachedNetworkImage(
           height: height,
           width: width,
           fit: fit,
           imageUrl: path,
-          placeholder: (_, __) =>
-              placeholderWidget ??
-              SizedBox(
-                height: height,
-                width: width,
-                child: LinearProgressIndicator(
-                  color: Colors.grey.shade200,
-                  backgroundColor: Colors.grey.shade100,
-                ),
-              ),
+          placeholder: (_, __) => _buildLoadingWidget(),
           errorWidget: (_, __, ___) => errorFallback(),
           fadeInDuration: fadeDuration,
+          memCacheWidth: (width ?? 300).toInt(),
+          memCacheHeight: (height ?? 300).toInt(),
         );
+      case ImageType.file:
+        // Handles local file images.
+        return _buildFileImage(path, errorFallback);
       default:
+        // Handles other image types.
         return FadeInImage(
-          placeholder: AssetImage(errorPlaceHolder ?? _defaultErrorAsset),
+          placeholder: AssetImage(errorPlaceHolder),
           image: AssetImage(path),
           height: height,
           width: width,
           fit: fit ?? BoxFit.cover,
-          imageErrorBuilder: (_, __, ___) => errorFallback(),
+          imageErrorBuilder: (context, error, stackTrace) => errorFallback(),
+          placeholderErrorBuilder: (context, error, stackTrace) =>
+              errorFallback(),
         );
     }
+  }
+
+  /// Builds a consistent loading widget.
+  Widget _buildLoadingWidget() {
+    return placeholderWidget ??
+        Container(
+          height: height,
+          width: width,
+          color: Colors.grey[200],
+          child: Center(
+            child: SizedBox(
+              height: (height ?? 100) * 0.2,
+              width: (width ?? 100) * 0.2,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[600]!),
+              ),
+            ),
+          ),
+        );
   }
 }
 
