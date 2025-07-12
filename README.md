@@ -10,8 +10,8 @@
 
 </div>
 <p align="center">
-  <img src="https://raw.githubusercontent.com/farhansadikgalib/any_image_view/main/raw/banner.png" 
- height="600" alt="Any Image View Demo"/>
+  <img src="https://raw.githubusercontent.com/farhansadikgalib/any_image_view/main/raw/banner.
+png" alt="Any Image View Demo"/>
 </p>
 
 ## 🎯 **Why Choose Any Image View?**
