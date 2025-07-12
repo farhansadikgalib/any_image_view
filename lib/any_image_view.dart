@@ -154,10 +154,10 @@ class AnyImageView extends StatelessWidget {
     if (imagePath is XFile) {
       final xFile = imagePath as XFile;
       final path = xFile.path;
-      if (path?.isEmpty ?? true) {
+      if (path == null || path.isEmpty) {
         return errorFallback();
       }
-      return _buildFileImage(path!, errorFallback);
+      return _buildFileImage(path, errorFallback);
     } else if (imagePath is String) {
       // Handles String type imagePath.
       final path = imagePath as String;

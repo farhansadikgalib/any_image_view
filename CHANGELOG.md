@@ -1,3 +1,16 @@
+## 1.4.0 – Minor Release
+- Enhanced error handling and null safety for all image types.
+- Improved code quality with comprehensive analysis and linting.
+- Fixed XFile path handling for better compatibility.
+- Added robust file validation and existence checks.
+- Unified error fallback system across all image types.
+- Consistent loading states for all supported image formats.
+- Memory management improvements for network images.
+- Professional changelog formatting without emojis.
+- Ready for production with maximum pub.dev compatibility.
+
+---
+
 ## 1.3.1 – Patch Release
 - Fixed: Properly handle nullable `XFile.path` for compatibility with cross_file 0.3.0.
 - Cleanup: No more analysis warnings; code is fully robust and clean.
