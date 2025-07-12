@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         body: Center(
           child: AnyImageView(
-            imagePath: 'assets/png/flutter_banner.png',
+            imagePath: 'assets/png/banner.png',
             height: 100,
             width: 300,
             errorPlaceHolder: 'assets/png/error.png',

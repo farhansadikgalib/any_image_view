@@ -6,10 +6,13 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Flutter](https://img.shields.io/badge/Flutter-3.4.3+-blue.svg)](https://flutter.dev)
 
-## **Display any image format in Flutter.**
+<div align="center">
 
+## \*\*Display any image format in Flutter.\*\*
+
+</div>
 <p align="center">
-  <img src="https://raw.githubusercontent.com/farhansadikgalib/any_image_view/main/raw/gif.gif" 
+  <img src="https://raw.githubusercontent.com/farhansadikgalib/any_image_view/main/raw/banner.png" 
 width="150" height="300" alt="Any Image View Demo"/>
 </p>
 
