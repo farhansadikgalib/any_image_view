@@ -22,10 +22,10 @@ environment:
   flutter: ">=3.10.0"
 
 dependencies:
-  lottie: ^3.0.0
-  flutter_svg: ^2.0.0
-  cached_network_image: ^3.3.0
-  cross_file: ^0.3.0
+  lottie:
+  flutter_svg:
+  cached_network_image:
+  cross_file:
 
   flutter:
     sdk: flutter
