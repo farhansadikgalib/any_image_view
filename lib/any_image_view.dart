@@ -1,198 +1,241 @@
-library any_image_view;
-
 import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
 
-/// This `AnyImageView` class is used for displaying any type of image in Flutter.
-/// It supports various image types such as SVG, JSON (Lottie), ZIP (Lottie),
-/// file-based images, network images, and asset images.
-/// It also provides customization options for size, alignment, border, shape,
-/// and placeholder handling.
+/// A widget that displays an image from various sources (local file, network, SVG, etc.)
+/// with customizable properties such as size, alignment, and error handling.
 class AnyImageView extends StatelessWidget {
-  /// The path of the image. It can be a network URL, file path, or asset path.
-  String? imagePath;
+  /// The source of the image. Can be a [String] (path or URL) or [XFile].
+  final Object? imagePath;
 
-  /// The height of the image.
-  double? height;
+  /// The height of the image container.
+  final double? height;
 
-  /// The width of the image.
-  double? width;
+  /// The width of the image container.
+  final double? width;
 
-  /// The `BoxFit` property to define how the image should be fitted inside its container.
-  BoxFit? boxFit;
+  /// Defines how the image should be inscribed into the container.
+  final BoxFit? fit;
 
-  /// The height of the placeholder for `CachedNetworkImage`.
-  double? cachedNetPlaceholderHeight;
+  /// Aligns the image within the container.
+  final Alignment? alignment;
 
-  /// The width of the placeholder for `CachedNetworkImage`.
-  double? cachedNetPlaceholderWidth;
+  /// Callback triggered when the image is tapped.
+  final VoidCallback? onTap;
 
-  /// The placeholder image to display when the network image fails to load.
-  String errorPlaceHolder;
+  /// Margin around the image container.
+  final EdgeInsetsGeometry? margin;
 
-  /// The alignment of the image within its container.
-  Alignment? alignment;
+  /// Padding inside the image container.
+  final EdgeInsetsGeometry? padding;
 
-  /// The callback function to handle tap events on the image.
-  VoidCallback? onTap;
+  /// Border radius for the image container.
+  final BorderRadius? borderRadius;
 
-  /// The margin around the image.
-  EdgeInsetsGeometry? margin;
+  /// Border for the image container.
+  final BoxBorder? border;
 
-  /// The padding inside the image container.
-  EdgeInsetsGeometry? padding;
+  /// Shadow effects for the image container.
+  final List<BoxShadow>? boxShadow;
 
-  /// The border radius of the image container.
-  BorderRadius? borderRadius;
+  /// Shape of the image container (e.g., rectangle or circle).
+  final BoxShape shape;
 
-  /// The border of the image container.
-  BoxBorder? border;
+  /// Path to the placeholder image displayed on error.
+  final String? errorPlaceHolder;
 
-  /// The shadow effects applied to the image container.
-  List<BoxShadow>? boxShadow;
+  /// Widget displayed while the image is loading.
+  final Widget? placeholderWidget;
 
-  /// The shape of the image container (e.g., rectangle or circle).
-  BoxShape shape;
+  /// Widget displayed when an error occurs while loading the image.
+  final Widget? errorWidget;
 
-  /// Constructs an `AnyImageView` object with customizable properties.
-  AnyImageView({
+  /// Duration for fade-in animation when switching images.
+  final Duration fadeDuration;
+
+  /// Constructor for [AnyImageView].
+  const AnyImageView({
     super.key,
     this.imagePath,
     this.height,
     this.width,
-    this.boxFit,
+    this.fit,
     this.alignment,
     this.onTap,
-    this.borderRadius,
     this.margin,
     this.padding,
+    this.borderRadius,
     this.border,
-    this.cachedNetPlaceholderHeight,
-    this.cachedNetPlaceholderWidth,
-    this.errorPlaceHolder = 'assets/images/not_found.png',
     this.boxShadow,
     this.shape = BoxShape.rectangle,
+    this.errorPlaceHolder,
+    this.placeholderWidget,
+    this.errorWidget,
+    this.fadeDuration = const Duration(milliseconds: 400),
   });
 
-  /// Builds the widget tree for the `AnyImageView`.
-  /// It wraps the image in an `InkWell` to handle tap events and applies
-  /// the specified decorations and properties.
+  /// Default asset path for the error placeholder image.
+  String get _defaultErrorAsset =>
+      'packages/any_image_view/assets/images/not_found.png';
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      focusColor: Colors.transparent, // Removes focus color
-      highlightColor: Colors.transparent, // Removes highlight color
-      onTap: onTap, // Handles tap events
+      focusColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: onTap,
       child: Container(
-        alignment: alignment, // Sets alignment
-        padding: padding, // Sets padding
-        height: height, // Sets height
-        width: width, // Sets width
+        alignment: alignment,
+        margin: margin,
+        padding: padding,
+        height: height,
+        width: width,
         decoration: BoxDecoration(
-          border: border, // Sets border
-          boxShadow: boxShadow, // Sets shadow effects
-          shape: shape, // Sets shape
+          border: border,
+          boxShadow: boxShadow,
+          shape: shape,
         ),
         child: ClipRRect(
-          borderRadius: borderRadius ?? BorderRadius.zero, // Sets border radius
-          child: imageTypeView(), // Displays the appropriate image type
+          borderRadius: borderRadius ?? BorderRadius.zero,
+          child: AnimatedSwitcher(
+            duration: fadeDuration,
+            child: _buildImage(),
+          ),
         ),
       ),
     );
   }
 
-  /// Determines the type of image to display based on the `imagePath` extension
-  /// and returns the corresponding widget.
-  Widget imageTypeView() {
-    if (imagePath != null) {
-      switch (imagePath!.imageType) {
-        case ImageType.svg:
-          return SvgPicture.asset(
-            imagePath!,
-            height: height,
-            width: width,
-            fit: boxFit ?? BoxFit.contain,
-          ); // Displays an SVG image
-        case ImageType.json:
-          return Lottie.asset(
-            imagePath!,
-            height: height,
-            width: width,
-            fit: boxFit ?? BoxFit.contain,
-          ); // Displays a Lottie animation (JSON)
-        case ImageType.zip:
-          return Lottie.asset(
-            imagePath!,
-            height: height,
-            width: width,
-            fit: boxFit ?? BoxFit.contain,
-          ); // Displays a Lottie animation (ZIP)
-        case ImageType.file:
-          return Image.file(
-            File(imagePath!),
-            height: height,
-            width: width,
-            fit: boxFit ?? BoxFit.cover,
-          ); // Displays an image from a file
-        case ImageType.network:
-          return CachedNetworkImage(
-            height: height,
-            width: width,
-            fit: boxFit,
-            imageUrl: imagePath!,
-            placeholder: (context, url) => SizedBox(
-              height: cachedNetPlaceholderHeight ?? 30,
-              width: cachedNetPlaceholderWidth ?? 30,
-              child: LinearProgressIndicator(
-                color: Colors.grey.shade200,
-                backgroundColor: Colors.grey.shade100,
+  /// Builds the appropriate image widget based on the [imagePath] type.
+  Widget _buildImage() {
+    Widget errorFallback() =>
+        errorWidget ??
+        Image.asset(
+          errorPlaceHolder ?? _defaultErrorAsset,
+          height: height,
+          width: width,
+          fit: fit ?? BoxFit.cover,
+        );
+
+    if (imagePath is XFile) {
+      return _buildFileImage((imagePath as XFile).path, errorFallback);
+    } else if (imagePath is String) {
+      return _buildStringImage(imagePath as String, errorFallback);
+    }
+    return const SizedBox();
+  }
+
+  /// Builds an image widget for a local file.
+  ///
+  /// [path] is the file path.
+  /// [errorFallback] is the widget displayed on error.
+  Widget _buildFileImage(String path, Widget Function() errorFallback) {
+    return FadeInImage(
+      placeholder: AssetImage(errorPlaceHolder ?? _defaultErrorAsset),
+      image: FileImage(File(path)),
+      height: height,
+      width: width,
+      fit: fit ?? BoxFit.cover,
+      imageErrorBuilder: (_, __, ___) => errorFallback(),
+    );
+  }
+
+  /// Builds an image widget for a string path (e.g., network URL, SVG, etc.).
+  ///
+  /// [path] is the image path or URL.
+  /// [errorFallback] is the widget displayed on error.
+  Widget _buildStringImage(String path, Widget Function() errorFallback) {
+    switch (path.imageType) {
+      case ImageType.svg:
+        return SvgPicture.asset(
+          path,
+          height: height,
+          width: width,
+          fit: fit ?? BoxFit.contain,
+          placeholderBuilder: (_) =>
+              placeholderWidget ??
+              SizedBox(
+                height: height,
+                width: width,
+                child: LinearProgressIndicator(),
               ),
-            ), // Displays a placeholder while loading
-            errorWidget: (context, url, error) => Image.asset(
-              errorPlaceHolder,
-              height: height,
-              width: width,
-              fit: boxFit ?? BoxFit.cover,
-              package: 'any_image_view',
-            ), // Displays an error placeholder
-          );
-        case ImageType.png:
-        default:
-          return Image.asset(
-            imagePath!,
-            height: height,
-            width: width,
-            fit: boxFit ?? BoxFit.cover,
-          ); // Displays an asset image
-      }
+          errorBuilder: (_, __, ___) => errorFallback(),
+        );
+      case ImageType.json:
+      case ImageType.zip:
+        return Lottie.asset(
+          path,
+          height: height,
+          width: width,
+          fit: fit ?? BoxFit.contain,
+          errorBuilder: (_, __, ___) => errorFallback(),
+        );
+      case ImageType.network:
+        return CachedNetworkImage(
+          height: height,
+          width: width,
+          fit: fit,
+          imageUrl: path,
+          placeholder: (_, __) =>
+              placeholderWidget ??
+              SizedBox(
+                height: height,
+                width: width,
+                child: LinearProgressIndicator(
+                  color: Colors.grey.shade200,
+                  backgroundColor: Colors.grey.shade100,
+                ),
+              ),
+          errorWidget: (_, __, ___) => errorFallback(),
+          fadeInDuration: fadeDuration,
+        );
+      default:
+        return FadeInImage(
+          placeholder: AssetImage(errorPlaceHolder ?? _defaultErrorAsset),
+          image: AssetImage(path),
+          height: height,
+          width: width,
+          fit: fit ?? BoxFit.cover,
+          imageErrorBuilder: (_, __, ___) => errorFallback(),
+        );
     }
-    return const SizedBox(); // Returns an empty widget if no image path is provided
   }
 }
 
-/// Extension on `String` to determine the type of image based on its path or URL.
+/// Extension on [String] to determine the type of image based on its path or URL.
 extension ImageTypeExtension on String {
-  /// Returns the `ImageType` based on the file extension or URL prefix.
+  /// Returns the [ImageType] based on the file extension or URL prefix.
   ImageType get imageType {
-    if (startsWith('http') || startsWith('https')) {
-      return ImageType.network; // Network image
-    } else if (endsWith('.svg')) {
-      return ImageType.svg; // SVG image
-    } else if (endsWith('.json')) {
-      return ImageType.json; // Lottie JSON animation
-    } else if (endsWith('.zip')) {
-      return ImageType.zip; // Lottie ZIP animation
-    } else if (startsWith('file://')) {
-      return ImageType.file; // File-based image
-    } else {
-      return ImageType.png; // Default to PNG asset image
-    }
+    if (startsWith('http') || startsWith('https')) return ImageType.network;
+    if (endsWith('.svg')) return ImageType.svg;
+    if (endsWith('.json')) return ImageType.json;
+    if (endsWith('.zip')) return ImageType.zip;
+    if (endsWith('.webp')) return ImageType.webp;
+    if (endsWith('.gif')) return ImageType.gif;
+    if (endsWith('.jpg')) return ImageType.jpg;
+    if (endsWith('.jpeg')) return ImageType.jpeg;
+    if (endsWith('.tiff')) return ImageType.tiff;
+    if (endsWith('.raw')) return ImageType.raw;
+    if (startsWith('file://') || startsWith('/')) return ImageType.file;
+    return ImageType.png;
   }
 }
 
-/// Enum to represent different types of images.
-enum ImageType { svg, png, network, json, zip, file, unknown }
+/// Enum representing different types of images.
+enum ImageType {
+  svg,
+  png,
+  jpg,
+  jpeg,
+  tiff,
+  raw,
+  webp,
+  gif,
+  network,
+  json,
+  zip,
+  file,
+}
