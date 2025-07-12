@@ -1,5 +1,5 @@
 name: any_image_view
-version: 1.4.1
+version: 1.4.0
 
 description: "A versatile Flutter image viewer supporting PNG, JPG, WebP, GIF, TIFF, RAW, SVG, Lottie, XFile, and cached network images — all in one seamless package."
 topics:
