@@ -1,3 +1,10 @@
+## 1.4.1 – Patch Release
+- Fixed: Added version constraints to dependencies for better compatibility.
+- Improved: Enhanced pub.dev score and package stability.
+- Ready: Optimized for production release with proper dependency management.
+
+---
+
 ## 1.4.0 – Minor Release
 - Enhanced error handling and null safety for all image types.
 - Improved code quality with comprehensive analysis and linting.
