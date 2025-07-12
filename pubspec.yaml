@@ -1,13 +1,35 @@
 name: any_image_view
-description: "A special Flutter package for displaying all kinds of images, including jpg, png,jpeg, SVG, lottie, and XFile, including network images with caching."
 version: 1.2.0
+
+description: "A powerful and flexible Flutter image viewer that supports PNG, JPG, JPEG, WebP, GIF, TIFF, RAW, SVG, Lottie (JSON/ZIP), XFile, and cached network images — all in one seamless solution."
+topics:
+  - flutter
+  - image
+  - image-viewer
+  - svg
+  - lottie
+
 homepage: https://github.com/farhansadikgalib/any_image_view
+repository: https://github.com/farhansadikgalib/any_image_view/blob/main/README.md
+issue_tracker: https://github.com/farhansadikgalib/any_image_view/issues
+
 publish_to: https://pub.dev
 publisher: farhansadikgalib.com
+authors:
+  - Farhan Sadik Galib <
+
+
+screenshots:
+  - description: "any image view"
+    path: raw/ss.png
+
+
+
+
 
 environment:
   sdk: ^3.2.6
-  flutter: ">=1.17.0"
+  flutter: ">=3.10.0"
 
 dependencies:
   lottie:
@@ -27,16 +49,3 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
-
-screenshots:
-  - description: "any image view"
-    path: raw/ss.png
-
-topics:
-    - flutter
-    - image
-    - svg
-    - lottie
-    - jpeg
-
-
