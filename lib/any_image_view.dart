@@ -93,6 +93,7 @@ class AnyImageView extends StatelessWidget {
       ),
     );
 
+    // Wraps the image content with InteractiveViewer if zoom is enabled.
     if (enableZoom) {
       imageContent = InteractiveViewer(
         minScale: 1.0,
@@ -101,6 +102,7 @@ class AnyImageView extends StatelessWidget {
       );
     }
 
+    // Returns the image wrapped in a container with customizable properties.
     return InkWell(
       focusColor: Colors.transparent,
       highlightColor: Colors.transparent,
@@ -125,6 +127,7 @@ class AnyImageView extends StatelessWidget {
 
   /// Builds the image widget based on the provided `imagePath`.
   Widget _buildImage() {
+    // Fallback widget displayed when an error occurs or the image path is invalid.
     Widget errorFallback() =>
         errorWidget ??
         Image.asset(
@@ -133,23 +136,20 @@ class AnyImageView extends StatelessWidget {
           width: width,
           fit: fit ?? BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
-            return Container(
+            return Shimmer(
               height: height,
               width: width,
-              color: Colors.grey[300],
-              child: Icon(
-                Icons.error_outline,
-                color: Colors.grey[600],
-                size: (height ?? 100) * 0.3,
-              ),
+              borderRadius: borderRadius,
             );
           },
         );
 
+    // Returns the fallback widget if the image path is null.
     if (imagePath == null) {
       return errorFallback();
     }
 
+    // Handles image loading for XFile type.
     if (imagePath is XFile) {
       final xFile = imagePath as XFile;
       final path = xFile.path;
@@ -157,7 +157,9 @@ class AnyImageView extends StatelessWidget {
         return errorFallback();
       }
       return _buildFileImage(path, errorFallback);
-    } else if (imagePath is String) {
+    }
+    // Handles image loading for String type.
+    else if (imagePath is String) {
       final path = imagePath as String;
       if (path.isEmpty) {
         return errorFallback();
@@ -165,6 +167,7 @@ class AnyImageView extends StatelessWidget {
       return _buildStringImage(path, errorFallback);
     }
 
+    // Returns the fallback widget for unsupported image types.
     return errorFallback();
   }
 
@@ -175,6 +178,7 @@ class AnyImageView extends StatelessWidget {
       return errorFallback();
     }
 
+    // Uses FutureBuilder to check file existence and display the image.
     return FutureBuilder<bool>(
       future: file.exists(),
       builder: (context, snapshot) {
@@ -186,6 +190,7 @@ class AnyImageView extends StatelessWidget {
           return errorFallback();
         }
 
+        // Displays the image with fade-in animation.
         return FadeInImage(
           placeholder: AssetImage(errorPlaceHolder),
           image: FileImage(file),
@@ -204,6 +209,7 @@ class AnyImageView extends StatelessWidget {
   Widget _buildStringImage(String path, Widget Function() errorFallback) {
     switch (path.imageType) {
       case ImageType.svg:
+        // Handles SVG image loading.
         return SvgPicture.asset(
           path,
           height: height,
@@ -213,6 +219,7 @@ class AnyImageView extends StatelessWidget {
         );
       case ImageType.json:
       case ImageType.zip:
+        // Handles Lottie animation loading.
         return Lottie.asset(
           path,
           height: height,
@@ -220,6 +227,7 @@ class AnyImageView extends StatelessWidget {
           fit: fit ?? BoxFit.contain,
         );
       case ImageType.network:
+        // Handles network image loading with caching.
         return CachedNetworkImage(
           height: height,
           width: width,
@@ -230,8 +238,10 @@ class AnyImageView extends StatelessWidget {
           fadeInDuration: fadeDuration,
         );
       case ImageType.file:
+        // Handles local file image loading.
         return _buildFileImage(path, errorFallback);
       default:
+        // Handles asset image loading with fade-in animation.
         return FadeInImage(
           placeholder: AssetImage(errorPlaceHolder),
           image: AssetImage(path),
@@ -252,7 +262,15 @@ class AnyImageView extends StatelessWidget {
           child: Shimmer(
             height: height,
             width: width,
-            borderRadius: borderRadius,
+            borderRadius: borderRadius != null
+                ? BorderRadius.only(
+                    topLeft: Radius.circular(borderRadius!.topLeft.x - 2),
+                    topRight: Radius.circular(borderRadius!.topRight.x - 2),
+                    bottomLeft: Radius.circular(borderRadius!.bottomLeft.x - 2),
+                    bottomRight:
+                        Radius.circular(borderRadius!.bottomRight.x - 2),
+                  )
+                : BorderRadius.zero,
           ),
         );
   }
@@ -326,7 +344,7 @@ class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
     // Initializes the animation controller and starts the animation loop.
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(milliseconds: 1500),
     )..repeat();
   }
 
@@ -356,8 +374,8 @@ class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
                 _controller.value,
                 (_controller.value + 0.2).clamp(0.0, 1.0),
               ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
             ).createShader(rect);
           },
           child: Container(
@@ -365,12 +383,11 @@ class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
             width: widget.width,
             decoration: BoxDecoration(
               color: Colors.grey[300],
-              borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
+              borderRadius: widget.borderRadius ?? BorderRadius.zero,
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withAlpha((0.15 * 255).toInt()),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  blurRadius: 5,
                 ),
               ],
             ),

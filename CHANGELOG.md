@@ -1,3 +1,18 @@
+## 1.5.0 – Major Release
+- Added: Support for PNG, JPG, WebP, GIF, TIFF, RAW, SVG, Lottie, XFile, and cached network images.
+- Added: Pinch-to-zoom and pan support for images via `InteractiveViewer`.
+- Added: Customizable border radius, border, box shadow, and shape for image containers.
+- Added: Premium shimmer loading effect with adjustable border radius.
+- Added: Error and placeholder widgets for all image types.
+- Added: Fade-in animation for image loading.
+- Added: Asset, network, and local file image support.
+- Added: Extension to auto-detect image type from path or URL.
+- Changed: Improved shimmer effect to allow border radius customization.
+- Changed: Enhanced error handling for missing or invalid image paths.
+- Fixed: Minor bug fixes and performance improvements.
+
+---
+
 ## 1.4.4 – Patch Release
 - Improved: Network images now load at full resolution for maximum quality.
 - Fixed: Resolved image resolution mismatch when loading from network.
