@@ -37,7 +37,7 @@ Tired of juggling multiple image widgets? Say goodbye to complex image handling!
 ### 1️⃣ **Add to pubspec.yaml**
 ```yaml
 dependencies:
-  any_image_view: ^1.4.0
+  any_image_view: ^1.4.3
 ```
 
 ### 2️⃣ **Run this command**

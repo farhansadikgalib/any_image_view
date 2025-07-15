@@ -1,3 +1,14 @@
+## 1.4.3 – Patch Release
+- Added: Zoom feature.
+- Added: Loader (shimmer effect) displayed while images are loading.
+- Fixed: Improved error handling for image loading failures.
+- Enhanced: Optimized shimmer loading effect for better performance.
+- Updated: Refactored code for increased readability and maintainability.
+- Compatibility: Ensured support for latest dependencies and Flutter versions.
+- Documentation: Updated inline comments and API docs for clarity.
+
+---
+
 ## 1.4.1 – Patch Release
 - Fixed: Added version constraints to dependencies for better compatibility.
 - Improved: Enhanced pub.dev score and package stability.
