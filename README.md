@@ -24,8 +24,12 @@ Tired of juggling multiple image widgets? Say goodbye to complex image handling!
 - ✅ **Lottie animations** for engaging content (JSON/ZIP)
 - ✅ **All image formats** (PNG, JPG, JPEG, WebP, GIF, TIFF, RAW)
 - ✅ **Asset images** from your app bundle
+- ✅ **Custom loading states** with placeholders
 - ✅ **Advanced error handling** with custom widgets
 - ✅ **Smooth animations** with configurable fade duration
+- ✅ **Network images** with automatic caching and fade animations
+- ✅ **Pinch-to-zoom and pan** support for images.
+- ✅ **Local files** from your device (XFile & String paths)
 - 🛡️ **Robust & Reliable** - Comprehensive error handling and validation
 
 **No more headaches, just beautiful images!** ✨
@@ -37,7 +41,7 @@ Tired of juggling multiple image widgets? Say goodbye to complex image handling!
 ### 1️⃣ **Add to pubspec.yaml**
 ```yaml
 dependencies:
-  any_image_view: ^1.4.3
+  any_image_view: ^1.4.4
 ```
 
 ### 2️⃣ **Run this command**

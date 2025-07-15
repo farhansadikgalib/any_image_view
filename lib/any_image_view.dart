@@ -228,12 +228,6 @@ class AnyImageView extends StatelessWidget {
           placeholder: (_, __) => _buildLoadingWidget(),
           errorWidget: (_, __, ___) => errorFallback(),
           fadeInDuration: fadeDuration,
-          memCacheWidth: (width != null && width!.isFinite && !width!.isNaN)
-              ? width!.toInt()
-              : null,
-          memCacheHeight: (height != null && height!.isFinite && !height!.isNaN)
-              ? height!.toInt()
-              : null,
         );
       case ImageType.file:
         return _buildFileImage(path, errorFallback);

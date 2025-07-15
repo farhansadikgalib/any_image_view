@@ -1,3 +1,11 @@
+## 1.4.4 – Patch Release
+- Improved: Network images now load at full resolution for maximum quality.
+- Fixed: Resolved image resolution mismatch when loading from network.
+- Updated: Ensured `memCacheWidth` and `memCacheHeight` are set to `null` for original image quality.
+- Documentation: Enhanced comments and examples for better understanding of image loading behavior.
+
+---
+
 ## 1.4.3 – Patch Release
 - Added: Zoom feature.
 - Added: Loader (shimmer effect) displayed while images are loading.
