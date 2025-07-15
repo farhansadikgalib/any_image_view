@@ -14,11 +14,9 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         body: Center(
           child: AnyImageView(
-            imagePath: 'assets/png/banner.png',
-            height: 100,
+            imagePath: 'assets/png/flutter_banner.png',
+            height: 400,
             width: 300,
-            errorPlaceHolder: 'assets/png/error.png',
-            placeholderWidget: CircularProgressIndicator(),
           ),
         ),
       ),

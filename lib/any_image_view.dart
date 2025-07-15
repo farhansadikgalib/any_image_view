@@ -5,72 +5,107 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
 
-/// A widget that displays an image from various sources (local file, network, SVG, etc.)
-/// with customizable properties such as size, alignment, and error handling.
-class AnyImageView extends StatelessWidget {
-  /// The source of the image. Can be a [String] (path or URL) or [XFile].
-  final Object? imagePath;
-
-  /// The height of the image container.
+class Shimmer extends StatefulWidget {
   final double? height;
-
-  /// The width of the image container.
   final double? width;
-
-  /// Defines how the image should be inscribed into the container.
-  final BoxFit? fit;
-
-  /// Aligns the image within the container.
-  final Alignment? alignment;
-
-  /// Callback triggered when the image is tapped.
-  final VoidCallback? onTap;
-
-  /// Margin around the image container.
-  final EdgeInsetsGeometry? margin;
-
-  /// Padding inside the image container.
-  final EdgeInsetsGeometry? padding;
-
-  /// Border radius for the image container.
   final BorderRadius? borderRadius;
 
-  /// Border for the image container.
+  const Shimmer({
+    Key? key,
+    this.height,
+    this.width,
+    this.borderRadius,
+  }) : super(key: key);
+
+  @override
+  State<Shimmer> createState() => _ShimmerState();
+}
+
+class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (_, __) {
+        return ShaderMask(
+          shaderCallback: (rect) {
+            return LinearGradient(
+              colors: [
+                Colors.grey[300]!,
+                Colors.grey[100]!,
+                Colors.grey[300]!,
+              ],
+              stops: [
+                (_controller.value - 0.2).clamp(0.0, 1.0),
+                _controller.value,
+                (_controller.value + 0.2).clamp(0.0, 1.0),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ).createShader(rect);
+          },
+          child: Container(
+            height: widget.height,
+            width: widget.width,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: widget.borderRadius ?? BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withValues(alpha: (0.15 * 255).toDouble()),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+          ),
+          blendMode: BlendMode.srcATop,
+        );
+      },
+    );
+  }
+}
+
+/// A widget that displays an image from various sources (local file, network, SVG, etc.)
+/// with customizable properties, premium skeleton loading effect, and optional zoom.
+class AnyImageView extends StatelessWidget {
+  final Object? imagePath;
+  final double? height;
+  final double? width;
+  final BoxFit? fit;
+  final Alignment? alignment;
+  final VoidCallback? onTap;
+  final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry? padding;
+  final BorderRadius? borderRadius;
   final BoxBorder? border;
-
-  /// Shadow effects for the image container.
   final List<BoxShadow>? boxShadow;
-
-  /// Shape of the image container (e.g., rectangle or circle).
   final BoxShape shape;
-
-  /// Path to the placeholder image displayed on error.
   final String errorPlaceHolder;
-
-  /// Widget displayed while the image is loading.
   final Widget? placeholderWidget;
-
-  /// Widget displayed when an error occurs while loading the image.
   final Widget? errorWidget;
-
-  /// Duration for fade-in animation when switching images.
   final Duration fadeDuration;
+  final bool enableZoom;
 
-  /// Constructor for [AnyImageView].
-  ///
-  /// [imagePath] specifies the image source.
-  /// [height] and [width] define the dimensions of the image container.
-  /// [fit] determines how the image is inscribed into the container.
-  /// [alignment] aligns the image within the container.
-  /// [onTap] is a callback triggered when the image is tapped.
-  /// [margin] and [padding] define spacing around and inside the container.
-  /// [borderRadius], [border], and [boxShadow] customize the container's appearance.
-  /// [shape] specifies the container's shape.
-  /// [errorPlaceHolder] is the path to the placeholder image displayed on error.
-  /// [placeholderWidget] and [errorWidget] are widgets displayed during loading or error states.
-  /// [fadeDuration] sets the duration for fade-in animations.
   const AnyImageView({
-    super.key,
+    Key? key,
     this.imagePath,
     this.height,
     this.width,
@@ -87,11 +122,28 @@ class AnyImageView extends StatelessWidget {
     this.placeholderWidget,
     this.errorWidget,
     this.fadeDuration = const Duration(milliseconds: 400),
-  }) : errorPlaceHolder = errorPlaceHolder ?? 'assets/images/not_found.png';
+    this.enableZoom = false,
+  })  : errorPlaceHolder = errorPlaceHolder ?? 'assets/images/not_found.png',
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Builds the main widget structure, including the container and image.
+    Widget imageContent = ClipRRect(
+      borderRadius: borderRadius ?? BorderRadius.zero,
+      child: AnimatedSwitcher(
+        duration: fadeDuration,
+        child: _buildImage(),
+      ),
+    );
+
+    if (enableZoom) {
+      imageContent = InteractiveViewer(
+        minScale: 1.0,
+        maxScale: 4.0,
+        child: imageContent,
+      );
+    }
+
     return InkWell(
       focusColor: Colors.transparent,
       highlightColor: Colors.transparent,
@@ -109,20 +161,12 @@ class AnyImageView extends StatelessWidget {
           boxShadow: boxShadow,
           shape: shape,
         ),
-        child: ClipRRect(
-          borderRadius: borderRadius ?? BorderRadius.zero,
-          child: AnimatedSwitcher(
-            duration: fadeDuration,
-            child: _buildImage(),
-          ),
-        ),
+        child: imageContent,
       ),
     );
   }
 
-  /// Builds the appropriate image widget based on the [imagePath] type.
   Widget _buildImage() {
-    // Fallback widget displayed on error.
     Widget errorFallback() =>
         errorWidget ??
         Image.asset(
@@ -131,7 +175,6 @@ class AnyImageView extends StatelessWidget {
           width: width,
           fit: fit ?? BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
-            // Fallback to a simple error widget if asset loading fails.
             return Container(
               height: height,
               width: width,
@@ -145,21 +188,18 @@ class AnyImageView extends StatelessWidget {
           },
         );
 
-    // Handles null imagePath.
     if (imagePath == null) {
       return errorFallback();
     }
 
-    // Handles XFile type imagePath.
     if (imagePath is XFile) {
       final xFile = imagePath as XFile;
       final path = xFile.path;
-      if (path == null || path.isEmpty) {
+      if (path.isEmpty) {
         return errorFallback();
       }
       return _buildFileImage(path, errorFallback);
     } else if (imagePath is String) {
-      // Handles String type imagePath.
       final path = imagePath as String;
       if (path.isEmpty) {
         return errorFallback();
@@ -170,12 +210,7 @@ class AnyImageView extends StatelessWidget {
     return errorFallback();
   }
 
-  /// Builds an image widget for a local file.
-  ///
-  /// [path] is the file path.
-  /// [errorFallback] is the widget displayed on error.
   Widget _buildFileImage(String path, Widget Function() errorFallback) {
-    // Validate file existence.
     final file = File(path);
     if (!file.existsSync()) {
       return errorFallback();
@@ -206,14 +241,9 @@ class AnyImageView extends StatelessWidget {
     );
   }
 
-  /// Builds an image widget for a string path (e.g., network URL, SVG, etc.).
-  ///
-  /// [path] is the image path or URL.
-  /// [errorFallback] is the widget displayed on error.
   Widget _buildStringImage(String path, Widget Function() errorFallback) {
     switch (path.imageType) {
       case ImageType.svg:
-        // Handles SVG images.
         return SvgPicture.asset(
           path,
           height: height,
@@ -223,7 +253,6 @@ class AnyImageView extends StatelessWidget {
         );
       case ImageType.json:
       case ImageType.zip:
-        // Handles Lottie animations.
         return Lottie.asset(
           path,
           height: height,
@@ -231,7 +260,6 @@ class AnyImageView extends StatelessWidget {
           fit: fit ?? BoxFit.contain,
         );
       case ImageType.network:
-        // Handles network images.
         return CachedNetworkImage(
           height: height,
           width: width,
@@ -240,14 +268,16 @@ class AnyImageView extends StatelessWidget {
           placeholder: (_, __) => _buildLoadingWidget(),
           errorWidget: (_, __, ___) => errorFallback(),
           fadeInDuration: fadeDuration,
-          memCacheWidth: (width ?? 300).toInt(),
-          memCacheHeight: (height ?? 300).toInt(),
+          memCacheWidth: (width != null && width!.isFinite && !width!.isNaN)
+              ? width!.toInt()
+              : null,
+          memCacheHeight: (height != null && height!.isFinite && !height!.isNaN)
+              ? height!.toInt()
+              : null,
         );
       case ImageType.file:
-        // Handles local file images.
         return _buildFileImage(path, errorFallback);
       default:
-        // Handles other image types.
         return FadeInImage(
           placeholder: AssetImage(errorPlaceHolder),
           image: AssetImage(path),
@@ -261,22 +291,13 @@ class AnyImageView extends StatelessWidget {
     }
   }
 
-  /// Builds a consistent loading widget.
   Widget _buildLoadingWidget() {
     return placeholderWidget ??
-        Container(
-          height: height,
-          width: width,
-          color: Colors.grey[200],
-          child: Center(
-            child: SizedBox(
-              height: (height ?? 100) * 0.2,
-              width: (width ?? 100) * 0.2,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[600]!),
-              ),
-            ),
+        Center(
+          child: Shimmer(
+            height: height,
+            width: width,
+            borderRadius: borderRadius,
           ),
         );
   }
@@ -284,7 +305,6 @@ class AnyImageView extends StatelessWidget {
 
 /// Extension on [String] to determine the type of image based on its path or URL.
 extension ImageTypeExtension on String {
-  /// Returns the [ImageType] based on the file extension or URL prefix.
   ImageType get imageType {
     if (startsWith('http') || startsWith('https')) return ImageType.network;
     if (endsWith('.svg')) return ImageType.svg;
