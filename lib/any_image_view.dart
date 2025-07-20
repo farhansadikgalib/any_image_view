@@ -242,15 +242,16 @@ class AnyImageView extends StatelessWidget {
         return _buildFileImage(path, errorFallback);
       default:
         // Handles asset image loading with fade-in animation.
-        return FadeInImage(
-          placeholder: AssetImage(errorPlaceHolder),
-          image: AssetImage(path),
-          height: height,
-          width: width,
-          fit: fit ?? BoxFit.cover,
-          imageErrorBuilder: (context, error, stackTrace) => errorFallback(),
-          placeholderErrorBuilder: (context, error, stackTrace) =>
-              errorFallback(),
+
+        return ClipRRect(
+          borderRadius: borderRadius ?? BorderRadius.zero,
+          child: Image.asset(
+            path,
+            height: height,
+            width: width,
+            fit: fit ?? BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => errorFallback(),
+          ),
         );
     }
   }
@@ -276,9 +277,30 @@ class AnyImageView extends StatelessWidget {
   }
 }
 
-/// Extension on [String] to determine the type of image based on its path or URL.
+// Update the enum
+enum ImageType {
+  svg,
+  png,
+  jpg,
+  jpeg,
+  tiff,
+  raw,
+  webp,
+  gif,
+  heic,
+  heif,
+  bmp,
+  ico,
+  exr,
+  hdr,
+  network,
+  json,
+  zip,
+  file,
+}
+
+// Update the extension
 extension ImageTypeExtension on String {
-  /// Determines the type of image based on its path or URL.
   ImageType get imageType {
     if (startsWith('http') || startsWith('https')) return ImageType.network;
     if (endsWith('.svg')) return ImageType.svg;
@@ -290,25 +312,15 @@ extension ImageTypeExtension on String {
     if (endsWith('.jpeg')) return ImageType.jpeg;
     if (endsWith('.tiff')) return ImageType.tiff;
     if (endsWith('.raw')) return ImageType.raw;
+    if (endsWith('.heic')) return ImageType.heic;
+    if (endsWith('.heif')) return ImageType.heif;
+    if (endsWith('.bmp')) return ImageType.bmp;
+    if (endsWith('.ico')) return ImageType.ico;
+    if (endsWith('.exr')) return ImageType.exr;
+    if (endsWith('.hdr')) return ImageType.hdr;
     if (startsWith('file://') || startsWith('/')) return ImageType.file;
     return ImageType.png;
   }
-}
-
-/// Enum representing different types of images.
-enum ImageType {
-  svg,
-  png,
-  jpg,
-  jpeg,
-  tiff,
-  raw,
-  webp,
-  gif,
-  network,
-  json,
-  zip,
-  file,
 }
 
 /// A widget that creates a shimmer effect, often used as a loading placeholder.

@@ -1,3 +1,14 @@
+## 1.6.0 – Maintenance Release
+- Added: Support for more image formats, including HEIC, HEIF, BMP, ICO, EXR, HDR.
+- Fixed: Zoom functionality was incorrectly applied to error placeholders and widgets.
+- Fixed: An "Infinity or NaN toInt" error that occurred during image caching.
+- Improved: The shimmer loader animation is now faster, smoother, and more visually appealing.
+- Improved: Null safety by removing all force-unwrap (`!`) operators.
+- Improved: Image loading logic is now more robust and simplified for better performance and readability.
+- Improved: The file structure by merging `image_loader.dart` into the main `any_image_view.dart` file.
+
+---
+
 ## 1.5.0 – Major Release
 - Added: Support for PNG, JPG, WebP, GIF, TIFF, RAW, SVG, Lottie, XFile, and cached network images.
 - Added: Pinch-to-zoom and pan support for images via `InteractiveViewer`.
