@@ -42,7 +42,8 @@ class MyApp extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const AnyImageView(
-                imagePath: 'https://invalid-url-that-does-not-exist.com/image.jpg',
+                imagePath:
+                    'https://invalid-url-that-does-not-exist.com/image.jpg',
                 height: 200,
                 width: double.infinity,
                 borderRadius: BorderRadius.all(Radius.circular(12)),
