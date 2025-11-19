@@ -402,34 +402,8 @@ cd build/web && python3 -m http.server 8000
 
 ---
 
-## 🔄 Migration from v1.6.0
+## Author
 
-No breaking changes! Just update your version:
-
-```yaml
-dependencies:
-  any_image_view: ^1.7.0
-```
+[Farhan Sadik Galib](https://farhansadikgalib.com/)
 
 ---
-
-## 🤝 Support & Contributing
-
-- 🐛 [Report Issues](https://github.com/farhansadikgalib/any_image_view/issues)
-- 💡 [Feature Requests](https://github.com/farhansadikgalib/any_image_view/discussions)
-- 📧 Email: [farhansadikgalib@gmail.com](mailto:farhansadikgalib@gmail.com)
-
-**Contributions are welcome!** Feel free to submit PRs.
-
----
-
-
-<div align="center">
-
-**Made with ❤️ by [Farhan Sadik Galib](https://farhansadikgalib.com)**
-
-If this package helps you, please ⭐ it on [GitHub](https://github.com/farhansadikgalib/any_image_view) and 👍 on [Pub.dev](https://pub.dev/packages/any_image_view)
-
-**Thank you!** 🙏
-
-</div>
