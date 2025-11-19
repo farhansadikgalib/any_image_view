@@ -85,12 +85,9 @@ class AnyImageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Builds the image content with optional zoom functionality.
-    Widget imageContent = ClipRRect(
-      borderRadius: borderRadius ?? BorderRadius.zero,
-      child: AnimatedSwitcher(
-        duration: fadeDuration,
-        child: _buildImage(),
-      ),
+    Widget imageContent = AnimatedSwitcher(
+      duration: fadeDuration,
+      child: _buildImage(),
     );
 
     // Wraps the image content with InteractiveViewer if zoom is enabled.
@@ -119,8 +116,14 @@ class AnyImageView extends StatelessWidget {
           border: border,
           boxShadow: boxShadow,
           shape: shape,
+          borderRadius: shape == BoxShape.rectangle ? borderRadius : null,
         ),
-        child: imageContent,
+        child: ClipRRect(
+          borderRadius: shape == BoxShape.rectangle
+              ? (borderRadius ?? BorderRadius.zero)
+              : BorderRadius.zero,
+          child: imageContent,
+        ),
       ),
     );
   }
@@ -132,16 +135,10 @@ class AnyImageView extends StatelessWidget {
         errorWidget ??
         Image.asset(
           errorPlaceHolder,
+          package: 'any_image_view',
           height: height,
           width: width,
           fit: fit ?? BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Shimmer(
-              height: height,
-              width: width,
-              borderRadius: borderRadius,
-            );
-          },
         );
 
     // Returns the fallback widget if the image path is null.
@@ -191,15 +188,12 @@ class AnyImageView extends StatelessWidget {
         }
 
         // Displays the image with fade-in animation.
-        return FadeInImage(
-          placeholder: AssetImage(errorPlaceHolder),
-          image: FileImage(file),
+        return Image.file(
+          file,
           height: height,
           width: width,
           fit: fit ?? BoxFit.cover,
-          imageErrorBuilder: (context, error, stackTrace) => errorFallback(),
-          placeholderErrorBuilder: (context, error, stackTrace) =>
-              errorFallback(),
+          errorBuilder: (context, error, stackTrace) => errorFallback(),
         );
       },
     );
@@ -210,6 +204,15 @@ class AnyImageView extends StatelessWidget {
     switch (path.imageType) {
       case ImageType.svg:
         // Handles SVG image loading.
+        if (path.startsWith('http') || path.startsWith('https')) {
+          return SvgPicture.network(
+            path,
+            height: height,
+            width: width,
+            fit: fit ?? BoxFit.contain,
+            placeholderBuilder: (_) => _buildLoadingWidget(),
+          );
+        }
         return SvgPicture.asset(
           path,
           height: height,
@@ -220,6 +223,14 @@ class AnyImageView extends StatelessWidget {
       case ImageType.json:
       case ImageType.zip:
         // Handles Lottie animation loading.
+        if (path.startsWith('http') || path.startsWith('https')) {
+          return Lottie.network(
+            path,
+            height: height,
+            width: width,
+            fit: fit ?? BoxFit.contain,
+          );
+        }
         return Lottie.asset(
           path,
           height: height,
@@ -242,16 +253,12 @@ class AnyImageView extends StatelessWidget {
         return _buildFileImage(path, errorFallback);
       default:
         // Handles asset image loading with fade-in animation.
-
-        return ClipRRect(
-          borderRadius: borderRadius ?? BorderRadius.zero,
-          child: Image.asset(
-            path,
-            height: height,
-            width: width,
-            fit: fit ?? BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => errorFallback(),
-          ),
+        return Image.asset(
+          path,
+          height: height,
+          width: width,
+          fit: fit ?? BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => errorFallback(),
         );
     }
   }
@@ -263,15 +270,7 @@ class AnyImageView extends StatelessWidget {
           child: Shimmer(
             height: height,
             width: width,
-            borderRadius: borderRadius != null
-                ? BorderRadius.only(
-                    topLeft: Radius.circular(borderRadius!.topLeft.x - 2),
-                    topRight: Radius.circular(borderRadius!.topRight.x - 2),
-                    bottomLeft: Radius.circular(borderRadius!.bottomLeft.x - 2),
-                    bottomRight:
-                        Radius.circular(borderRadius!.bottomRight.x - 2),
-                  )
-                : BorderRadius.zero,
+            borderRadius: borderRadius,
           ),
         );
   }
@@ -302,14 +301,13 @@ enum ImageType {
 // Update the extension
 extension ImageTypeExtension on String {
   ImageType get imageType {
-    if (startsWith('http') || startsWith('https')) return ImageType.network;
+    // Check for specific file extensions first (works for both local and network paths)
     if (endsWith('.svg')) return ImageType.svg;
     if (endsWith('.json')) return ImageType.json;
     if (endsWith('.zip')) return ImageType.zip;
     if (endsWith('.webp')) return ImageType.webp;
     if (endsWith('.gif')) return ImageType.gif;
-    if (endsWith('.jpg')) return ImageType.jpg;
-    if (endsWith('.jpeg')) return ImageType.jpeg;
+    if (endsWith('.jpg') || endsWith('.jpeg')) return ImageType.jpeg;
     if (endsWith('.tiff')) return ImageType.tiff;
     if (endsWith('.raw')) return ImageType.raw;
     if (endsWith('.heic')) return ImageType.heic;
@@ -318,7 +316,11 @@ extension ImageTypeExtension on String {
     if (endsWith('.ico')) return ImageType.ico;
     if (endsWith('.exr')) return ImageType.exr;
     if (endsWith('.hdr')) return ImageType.hdr;
+    // Check for network URLs after checking extensions
+    if (startsWith('http') || startsWith('https')) return ImageType.network;
+    // Check for file paths
     if (startsWith('file://') || startsWith('/')) return ImageType.file;
+    // Default to PNG for asset paths
     return ImageType.png;
   }
 }
