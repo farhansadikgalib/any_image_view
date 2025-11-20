@@ -1,3 +1,20 @@
+## 1.7.0 – Advanced Caching & Performance Release
+- Enhanced: Significantly improved `cached_network_image` implementation with advanced features.
+- Added: Custom HTTP headers support for authenticated network image requests (`httpHeaders` parameter).
+- Added: Memory cache optimization with `memCacheWidth` and `memCacheHeight` parameters.
+- Added: Cache duration control with `cacheMaxAge` parameter for network images.
+- Added: Automatic retry logic with `maxRetryAttempts` parameter (default: 3 attempts).
+- Added: Memory cache toggle with `useMemoryCache` parameter for fine-grained control.
+- Added: Advanced error logging with `errorListener` for better debugging.
+- Added: Improved image quality control with `FilterQuality.medium` setting.
+- Improved: Network image performance with disk cache width/height optimization.
+- Improved: Documentation with comprehensive examples for all new features.
+- Updated: All dependencies to latest versions (cached_network_image: ^3.4.1, flutter_svg: ^2.2.2, lottie: ^3.3.2).
+- Updated: Example app with showcase of all advanced features including memory optimization and error handling.
+- Fixed: Better memory management for large network images.
+
+---
+
 ## 1.6.0 – Maintenance Release
 - Added: Support for more image formats, including HEIC, HEIF, BMP, ICO, EXR, HDR.
 - Fixed: Zoom functionality was incorrectly applied to error placeholders and widgets.

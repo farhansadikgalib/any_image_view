@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cross_file/cross_file.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
