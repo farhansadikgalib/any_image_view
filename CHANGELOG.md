@@ -1,17 +1,27 @@
 ## 1.7.0 – Advanced Caching & Performance Release
 - Enhanced: Significantly improved `cached_network_image` implementation with advanced features.
 - Added: Custom HTTP headers support for authenticated network image requests (`httpHeaders` parameter).
-- Added: Memory cache optimization with `memCacheWidth` and `memCacheHeight` parameters.
+- Added: Automatic memory cache optimization - uses `height` and `width` for cache dimensions (no separate parameters needed).
 - Added: Cache duration control with `cacheMaxAge` parameter for network images.
 - Added: Automatic retry logic with `maxRetryAttempts` parameter (default: 3 attempts).
 - Added: Memory cache toggle with `useMemoryCache` parameter for fine-grained control.
 - Added: Advanced error logging with `errorListener` for better debugging.
 - Added: Improved image quality control with `FilterQuality.medium` setting.
-- Improved: Network image performance with disk cache width/height optimization.
+- Improved: Error placeholder now uses built-in `Icons.broken_image` instead of asset file for better reliability.
+- Improved: Border radius handling - now properly clips content and applies to decoration.
+- Improved: Image type detection logic - checks file extensions before URL protocol.
+- Improved: Network image performance with automatic disk and memory cache optimization based on dimensions.
+- Improved: Shimmer loading animation now properly fills the container without extra centering wrapper.
+- Improved: XFile handling is now more robust and reliable.
+- Improved: Simplified API - memory cache dimensions automatically derived from height/width.
 - Improved: Documentation with comprehensive examples for all new features.
 - Updated: All dependencies to latest versions (cached_network_image: ^3.4.1, flutter_svg: ^2.2.2, lottie: ^3.3.2).
 - Updated: Example app with showcase of all advanced features including memory optimization and error handling.
+- Removed: `errorPlaceHolder` parameter (replaced with built-in broken_image icon).
+- Removed: `memCacheWidth` and `memCacheHeight` parameters (now automatically derived from height/width).
+- Removed: Network SVG and Lottie support (kept local assets only for better stability).
 - Fixed: Better memory management for large network images.
+- Fixed: File image loading now uses direct Image.file instead of FadeInImage for better performance.
 
 ---
 

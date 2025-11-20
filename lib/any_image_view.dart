@@ -44,9 +44,6 @@ class AnyImageView extends StatelessWidget {
   /// Shape of the image container (e.g., rectangle or circle).
   final BoxShape shape;
 
-  /// Path to the placeholder image displayed on error.
-  final String errorPlaceHolder;
-
   /// Custom widget displayed as a placeholder while loading.
   final Widget? placeholderWidget;
 
@@ -71,12 +68,6 @@ class AnyImageView extends StatelessWidget {
   /// Whether to use memory cache for network images.
   final bool useMemoryCache;
 
-  /// Memory cache width for network images (optional, helps with memory optimization).
-  final int? memCacheWidth;
-
-  /// Memory cache height for network images (optional, helps with memory optimization).
-  final int? memCacheHeight;
-
   /// Creates an image view widget with various customization options.
   const AnyImageView({
     Key? key,
@@ -92,7 +83,6 @@ class AnyImageView extends StatelessWidget {
     this.border,
     this.boxShadow,
     this.shape = BoxShape.rectangle,
-    String? errorPlaceHolder,
     this.placeholderWidget,
     this.errorWidget,
     this.fadeDuration = const Duration(milliseconds: 400),
@@ -101,10 +91,7 @@ class AnyImageView extends StatelessWidget {
     this.cacheMaxAge,
     this.maxRetryAttempts = 3,
     this.useMemoryCache = true,
-    this.memCacheWidth,
-    this.memCacheHeight,
-  })  : errorPlaceHolder = errorPlaceHolder ?? 'assets/images/not_found.png',
-        super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -157,12 +144,17 @@ class AnyImageView extends StatelessWidget {
     // Fallback widget displayed when an error occurs or the image path is invalid.
     Widget errorFallback() =>
         errorWidget ??
-        Image.asset(
-          errorPlaceHolder,
-          package: 'any_image_view',
+        Container(
           height: height,
           width: width,
-          fit: fit ?? BoxFit.cover,
+          color: Colors.grey[200],
+          child: Icon(
+            Icons.broken_image,
+            size: (height != null && width != null)
+                ? (height! < width! ? height! * 0.5 : width! * 0.5)
+                : 48,
+            color: Colors.grey[400],
+          ),
         );
 
     // Returns the fallback widget if the image path is null.
@@ -227,16 +219,7 @@ class AnyImageView extends StatelessWidget {
   Widget _buildStringImage(String path, Widget Function() errorFallback) {
     switch (path.imageType) {
       case ImageType.svg:
-        // Handles SVG image loading.
-        if (path.startsWith('http') || path.startsWith('https')) {
-          return SvgPicture.network(
-            path,
-            height: height,
-            width: width,
-            fit: fit ?? BoxFit.contain,
-            placeholderBuilder: (_) => _buildLoadingWidget(),
-          );
-        }
+        // Handles SVG image loading (local assets only).
         return SvgPicture.asset(
           path,
           height: height,
@@ -246,15 +229,7 @@ class AnyImageView extends StatelessWidget {
         );
       case ImageType.json:
       case ImageType.zip:
-        // Handles Lottie animation loading.
-        if (path.startsWith('http') || path.startsWith('https')) {
-          return Lottie.network(
-            path,
-            height: height,
-            width: width,
-            fit: fit ?? BoxFit.contain,
-          );
-        }
+        // Handles Lottie animation loading (local assets only).
         return Lottie.asset(
           path,
           height: height,
@@ -274,10 +249,10 @@ class AnyImageView extends StatelessWidget {
           fadeOutDuration: const Duration(milliseconds: 300),
           httpHeaders: httpHeaders,
           cacheKey: path,
-          maxHeightDiskCache: memCacheHeight,
-          maxWidthDiskCache: memCacheWidth,
-          memCacheHeight: memCacheHeight,
-          memCacheWidth: memCacheWidth,
+          maxHeightDiskCache: height?.toInt(),
+          maxWidthDiskCache: width?.toInt(),
+          memCacheHeight: height?.toInt(),
+          memCacheWidth: width?.toInt(),
           useOldImageOnUrlChange: false,
           filterQuality: FilterQuality.medium,
           errorListener: (error) {
@@ -303,12 +278,10 @@ class AnyImageView extends StatelessWidget {
   /// Builds a loading widget, typically a shimmer effect.
   Widget _buildLoadingWidget() {
     return placeholderWidget ??
-        Center(
-          child: Shimmer(
-            height: height,
-            width: width,
-            borderRadius: borderRadius,
-          ),
+        Shimmer(
+          height: height,
+          width: width,
+          borderRadius: borderRadius,
         );
   }
 }

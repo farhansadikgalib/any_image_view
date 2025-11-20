@@ -20,16 +20,16 @@ Tired of juggling multiple image widgets? Say goodbye to complex image handling!
 
 - ✅ **Network images** with automatic caching and fade animations
 - ✅ **Local files** from your device (XFile & String paths)
-- ✅ **SVG graphics** with perfect scaling and custom placeholders
-- ✅ **Lottie animations** for engaging content (JSON/ZIP)
-- ✅ **All image formats** (PNG, JPG, JPEG, WebP, GIF, TIFF, RAW)
+- ✅ **SVG graphics** (local assets) with perfect scaling and custom placeholders
+- ✅ **Lottie animations** (local assets) for engaging content (JSON/ZIP)
+- ✅ **All image formats** (PNG, JPG, JPEG, WebP, GIF, TIFF, RAW, HEIC, HEIF, BMP, ICO)
 - ✅ **Asset images** from your app bundle
-- ✅ **Custom loading states** with placeholders
-- ✅ **Advanced error handling** with custom widgets
+- ✅ **Custom loading states** with shimmer animation
+- ✅ **Advanced error handling** with built-in broken_image icon
 - ✅ **Smooth animations** with configurable fade duration
-- ✅ **Network images** with automatic caching and fade animations
-- ✅ **Pinch-to-zoom and pan** support for images.
-- ✅ **Local files** from your device (XFile & String paths)
+- ✅ **Pinch-to-zoom and pan** support for images
+- ✅ **Memory optimization** for network images with cache control
+- ✅ **HTTP headers** support for authenticated network requests
 - 🛡️ **Robust & Reliable** - Comprehensive error handling and validation
 
 **No more headaches, just beautiful images!** ✨
@@ -299,11 +299,8 @@ Improved `cached_network_image` implementation with advanced features:
 ```dart
 AnyImageView(
   imagePath: 'https://example.com/large-image.jpg',
-  height: 300,
-  width: 300,
-  // Memory cache optimization - reduces memory usage
-  memCacheWidth: 600,  // Max width in memory cache
-  memCacheHeight: 600, // Max height in memory cache
+  height: 300,  // Automatically used for memory cache optimization
+  width: 300,   // Automatically used for memory cache optimization
   
   // Custom HTTP headers for authenticated requests
   httpHeaders: {
@@ -342,13 +339,11 @@ AnyImageView(
 ### **Memory-Efficient Large Images**
 ```dart
 // Optimize memory for high-resolution images
+// The widget automatically uses height/width for memory cache optimization
 AnyImageView(
   imagePath: 'https://example.com/4k-image.jpg',
-  height: 200,
-  width: 300,
-  // Downsample to save memory (2x original dimensions recommended)
-  memCacheWidth: 600,
-  memCacheHeight: 400,
+  height: 200,  // Used for memory cache
+  width: 300,   // Used for memory cache
   fit: BoxFit.cover,
 )
 ```
@@ -384,17 +379,14 @@ AnyImageView(
 | `margin` | `EdgeInsetsGeometry?` | `null` | Outer spacing |
 | `padding` | `EdgeInsetsGeometry?` | `null` | Inner spacing |
 | `onTap` | `VoidCallback?` | `null` | Tap callback function |
-| `errorPlaceHolder` | `String?` | `'assets/images/not_found.png'` | Fallback image path |
 | `placeholderWidget` | `Widget?` | `null` | Custom loading widget |
-| `errorWidget` | `Widget?` | `null` | Custom error widget |
+| `errorWidget` | `Widget?` | `null` | Custom error widget (defaults to broken_image icon) |
 | `fadeDuration` | `Duration` | `400ms` | Fade animation duration |
 | `enableZoom` | `bool` | `false` | Enable pinch-to-zoom functionality |
 | `httpHeaders` | `Map<String, String>?` | `null` | Custom HTTP headers for network images |
 | `cacheMaxAge` | `Duration?` | `null` | Maximum cache duration for network images |
 | `maxRetryAttempts` | `int` | `3` | Max retry attempts for failed requests |
-| `useMemoryCache` | `bool` | `true` | Enable in-memory caching |
-| `memCacheWidth` | `int?` | `null` | Max width for memory cache (optimization) |
-| `memCacheHeight` | `int?` | `null` | Max height for memory cache (optimization) |
+| `useMemoryCache` | `bool` | `true` | Enable in-memory caching (uses height/width for cache dimensions) |
 
 ### **Supported Image Formats**
 
@@ -585,16 +577,23 @@ fadeDuration: Duration(milliseconds: 1000), // Smooth transition
 
 ### **5. Error Recovery**
 ```dart
-// Provide fallback images for better UX
+// Default broken_image icon is shown automatically on error
 AnyImageView(
 imagePath: userAvatarUrl,
-errorPlaceHolder: 'assets/images/default_avatar.png',
+height: 100,
+width: 100,
+shape: BoxShape.circle,
+)
+
+// Or provide a custom error widget for better UX
+AnyImageView(
+imagePath: userAvatarUrl,
 errorWidget: Container(
 decoration: BoxDecoration(
 shape: BoxShape.circle,
 color: Colors.grey[300],
 ),
-child: Icon(Icons.person),
+child: Icon(Icons.person, size: 40),
 ),
 )
 ```

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:any_image_view/any_image_view.dart';
+import 'package:image_picker/image_picker.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,8 +22,29 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class ImageGalleryScreen extends StatelessWidget {
+class ImageGalleryScreen extends StatefulWidget {
   const ImageGalleryScreen({super.key});
+
+  @override
+  State<ImageGalleryScreen> createState() => _ImageGalleryScreenState();
+}
+
+class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
+  XFile? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          _selectedImage = image;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,23 +52,64 @@ class ImageGalleryScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Any Image View - Advanced Features'),
         elevation: 2,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.photo_library),
+            onPressed: _pickImage,
+            tooltip: 'Pick Image from Gallery',
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (_selectedImage != null) ...[
+            _buildSection(
+              'XFile from Image Picker (Perfect XFile Support)',
+              AnyImageView(
+                imagePath: _selectedImage,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
           _buildSection(
-            'Network Image with Caching',
-            AnyImageView(
-              imagePath: 'https://picsum.photos/400/300',
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+            'Network Image with Shimmer Loading Animation',
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '✨ Watch the shimmer animation while image loads',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                AnyImageView(
+                  imagePath: 'https://picsum.photos/seed/${DateTime.now().millisecondsSinceEpoch}/400/300',
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -54,15 +117,27 @@ class ImageGalleryScreen extends StatelessWidget {
           const SizedBox(height: 24),
           _buildSection(
             'Memory-Optimized Network Image',
-            AnyImageView(
-              imagePath: 'https://picsum.photos/800/600',
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              borderRadius: BorderRadius.circular(12),
-              memCacheWidth: 800,
-              memCacheHeight: 600,
-              useMemoryCache: true,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '🚀 Automatically optimized using height/width',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                AnyImageView(
+                  imagePath: 'https://picsum.photos/800/600',
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  borderRadius: BorderRadius.circular(12),
+                  useMemoryCache: true,
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 24),
