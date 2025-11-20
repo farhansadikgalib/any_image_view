@@ -98,7 +98,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
                 ),
                 const SizedBox(height: 8),
                 AnyImageView(
-                  imagePath: 'https://picsum.photos/seed/${DateTime.now().millisecondsSinceEpoch}/400/300',
+                  imagePath:
+                      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
                   height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -130,7 +131,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
                 ),
                 const SizedBox(height: 8),
                 AnyImageView(
-                  imagePath: 'https://picsum.photos/800/600',
+                  imagePath:
+                      'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=600&fit=crop',
                   height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -175,7 +177,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
           _buildSection(
             'Circular Avatar with Zoom',
             AnyImageView(
-              imagePath: 'https://picsum.photos/200',
+              imagePath:
+                  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop',
               height: 120,
               width: 120,
               shape: BoxShape.circle,
@@ -230,7 +233,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AnyImageView(
-                    imagePath: 'https://picsum.photos/400/250',
+                    imagePath:
+                        'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=400&h=250&fit=crop',
                     height: 200,
                     width: double.infinity,
                     fit: BoxFit.cover,

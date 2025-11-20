@@ -238,6 +238,12 @@ class AnyImageView extends StatelessWidget {
         );
       case ImageType.network:
         // Handles network image loading with advanced caching and retry logic.
+        // Convert dimensions to int, handling infinity and null cases
+        final int? cacheWidth =
+            (width != null && width!.isFinite) ? width!.toInt() : null;
+        final int? cacheHeight =
+            (height != null && height!.isFinite) ? height!.toInt() : null;
+
         return CachedNetworkImage(
           height: height,
           width: width,
@@ -249,10 +255,10 @@ class AnyImageView extends StatelessWidget {
           fadeOutDuration: const Duration(milliseconds: 300),
           httpHeaders: httpHeaders,
           cacheKey: path,
-          maxHeightDiskCache: height?.toInt(),
-          maxWidthDiskCache: width?.toInt(),
-          memCacheHeight: height?.toInt(),
-          memCacheWidth: width?.toInt(),
+          maxHeightDiskCache: cacheHeight,
+          maxWidthDiskCache: cacheWidth,
+          memCacheHeight: cacheHeight,
+          memCacheWidth: cacheWidth,
           useOldImageOnUrlChange: false,
           filterQuality: FilterQuality.medium,
           errorListener: (error) {
