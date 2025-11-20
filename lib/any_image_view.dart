@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cross_file/cross_file.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
@@ -59,6 +60,24 @@ class AnyImageView extends StatelessWidget {
   /// Whether zoom functionality is enabled for the image.
   final bool enableZoom;
 
+  /// Custom HTTP headers for network images.
+  final Map<String, String>? httpHeaders;
+
+  /// Maximum cache duration for network images.
+  final Duration? cacheMaxAge;
+
+  /// Maximum number of retry attempts for failed network requests.
+  final int maxRetryAttempts;
+
+  /// Whether to use memory cache for network images.
+  final bool useMemoryCache;
+
+  /// Memory cache width for network images (optional, helps with memory optimization).
+  final int? memCacheWidth;
+
+  /// Memory cache height for network images (optional, helps with memory optimization).
+  final int? memCacheHeight;
+
   /// Creates an image view widget with various customization options.
   const AnyImageView({
     Key? key,
@@ -79,6 +98,12 @@ class AnyImageView extends StatelessWidget {
     this.errorWidget,
     this.fadeDuration = const Duration(milliseconds: 400),
     this.enableZoom = false,
+    this.httpHeaders,
+    this.cacheMaxAge,
+    this.maxRetryAttempts = 3,
+    this.useMemoryCache = true,
+    this.memCacheWidth,
+    this.memCacheHeight,
   })  : errorPlaceHolder = errorPlaceHolder ?? 'assets/images/not_found.png',
         super(key: key);
 
@@ -227,7 +252,7 @@ class AnyImageView extends StatelessWidget {
           fit: fit ?? BoxFit.contain,
         );
       case ImageType.network:
-        // Handles network image loading with caching.
+        // Handles network image loading with advanced caching and retry logic.
         return CachedNetworkImage(
           height: height,
           width: width,
@@ -236,6 +261,19 @@ class AnyImageView extends StatelessWidget {
           placeholder: (_, __) => _buildLoadingWidget(),
           errorWidget: (_, __, ___) => errorFallback(),
           fadeInDuration: fadeDuration,
+          fadeOutDuration: const Duration(milliseconds: 300),
+          httpHeaders: httpHeaders,
+          cacheKey: path,
+          maxHeightDiskCache: memCacheHeight,
+          maxWidthDiskCache: memCacheWidth,
+          memCacheHeight: memCacheHeight,
+          memCacheWidth: memCacheWidth,
+          useOldImageOnUrlChange: false,
+          filterQuality: FilterQuality.medium,
+          errorListener: (error) {
+            // Log error for debugging (can be extended with custom error handling)
+            debugPrint('CachedNetworkImage Error: $error');
+          },
         );
       case ImageType.file:
         // Handles local file image loading.

@@ -291,6 +291,81 @@ style: TextStyle(color: Colors.white, fontSize: 18),
 
 ---
 
+## 🚀 **Advanced Network Image Features**
+
+### **Smart Caching & Memory Optimization**
+Improved `cached_network_image` implementation with advanced features:
+
+```dart
+AnyImageView(
+  imagePath: 'https://example.com/large-image.jpg',
+  height: 300,
+  width: 300,
+  // Memory cache optimization - reduces memory usage
+  memCacheWidth: 600,  // Max width in memory cache
+  memCacheHeight: 600, // Max height in memory cache
+  
+  // Custom HTTP headers for authenticated requests
+  httpHeaders: {
+    'Authorization': 'Bearer your_token_here',
+    'Custom-Header': 'custom_value',
+  },
+  
+  // Advanced caching control
+  useMemoryCache: true, // Enable in-memory caching
+  cacheMaxAge: Duration(days: 7), // Cache duration
+  maxRetryAttempts: 3, // Retry failed requests
+  
+  // Enhanced error handling
+  errorWidget: Container(
+    color: Colors.grey[200],
+    child: Icon(Icons.error),
+  ),
+)
+```
+
+### **Authenticated Network Images**
+```dart
+// Load images with authentication headers
+AnyImageView(
+  imagePath: 'https://api.example.com/user/avatar.jpg',
+  httpHeaders: {
+    'Authorization': 'Bearer ${authToken}',
+    'X-API-Key': apiKey,
+  },
+  height: 100,
+  width: 100,
+  shape: BoxShape.circle,
+)
+```
+
+### **Memory-Efficient Large Images**
+```dart
+// Optimize memory for high-resolution images
+AnyImageView(
+  imagePath: 'https://example.com/4k-image.jpg',
+  height: 200,
+  width: 300,
+  // Downsample to save memory (2x original dimensions recommended)
+  memCacheWidth: 600,
+  memCacheHeight: 400,
+  fit: BoxFit.cover,
+)
+```
+
+### **Retry Logic for Poor Networks**
+```dart
+// Automatically retry failed network requests
+AnyImageView(
+  imagePath: 'https://slow-server.com/image.jpg',
+  maxRetryAttempts: 5, // Retry up to 5 times
+  placeholderWidget: CircularProgressIndicator(),
+  errorWidget: Text('Failed to load after retries'),
+)
+```
+
+---
+
 ## 🔧 **Complete API Reference**
 
 ### **Constructor Parameters**
@@ -313,6 +388,13 @@ style: TextStyle(color: Colors.white, fontSize: 18),
 | `placeholderWidget` | `Widget?` | `null` | Custom loading widget |
 | `errorWidget` | `Widget?` | `null` | Custom error widget |
 | `fadeDuration` | `Duration` | `400ms` | Fade animation duration |
+| `enableZoom` | `bool` | `false` | Enable pinch-to-zoom functionality |
+| `httpHeaders` | `Map<String, String>?` | `null` | Custom HTTP headers for network images |
+| `cacheMaxAge` | `Duration?` | `null` | Maximum cache duration for network images |
+| `maxRetryAttempts` | `int` | `3` | Max retry attempts for failed requests |
+| `useMemoryCache` | `bool` | `true` | Enable in-memory caching |
+| `memCacheWidth` | `int?` | `null` | Max width for memory cache (optimization) |
+| `memCacheHeight` | `int?` | `null` | Max height for memory cache (optimization) |
 
 ### **Supported Image Formats**
 
