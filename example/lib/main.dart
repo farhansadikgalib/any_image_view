@@ -138,7 +138,7 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
                   fit: BoxFit.cover,
                   borderRadius: BorderRadius.circular(12),
                   useMemoryCache: true,
-                ),
+                )
               ],
             ),
           ),

@@ -1,3 +1,12 @@
+## 1.9.0
+- Fixed: Network URL image loading for URLs with file extensions (e.g., Pexels, direct image URLs ending in .jpg, .jpeg, .png).
+- Fixed: Image type detection now prioritizes URL protocol check before file extension check.
+- Improved: Network images from any source (Pexels, direct URLs, etc.) now properly use cached network image loading.
+- Improved: URL detection now checks for `http://` and `https://` prefixes before checking file extensions.
+- Enhanced: Better reliability for loading images from various image hosting services and CDNs.
+
+---
+
 ## 1.8.0
 - Enhanced: Significantly improved `cached_network_image` implementation with advanced features.
 - Added: Custom HTTP headers support for authenticated network image requests (`httpHeaders` parameter).

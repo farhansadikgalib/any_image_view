@@ -317,7 +317,12 @@ enum ImageType {
 // Update the extension
 extension ImageTypeExtension on String {
   ImageType get imageType {
-    // Check for specific file extensions first (works for both local and network paths)
+    // Check for network URLs FIRST before checking extensions
+    if (startsWith('http://') || startsWith('https://'))
+      return ImageType.network;
+    // Check for file paths
+    if (startsWith('file://') || startsWith('/')) return ImageType.file;
+    // Check for specific file extensions (for local assets)
     if (endsWith('.svg')) return ImageType.svg;
     if (endsWith('.json')) return ImageType.json;
     if (endsWith('.zip')) return ImageType.zip;
@@ -332,10 +337,6 @@ extension ImageTypeExtension on String {
     if (endsWith('.ico')) return ImageType.ico;
     if (endsWith('.exr')) return ImageType.exr;
     if (endsWith('.hdr')) return ImageType.hdr;
-    // Check for network URLs after checking extensions
-    if (startsWith('http') || startsWith('https')) return ImageType.network;
-    // Check for file paths
-    if (startsWith('file://') || startsWith('/')) return ImageType.file;
     // Default to PNG for asset paths
     return ImageType.png;
   }
