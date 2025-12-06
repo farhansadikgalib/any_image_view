@@ -422,7 +422,28 @@ AnyImageView(
 
 ### **Custom Error Widget**
 ```dart
-
+// @formatter:off
+AnyImageView(
+  imagePath: 'https://broken-link.com/image.jpg',
+  height: 200,
+  width: 200,
+  errorWidget: Container(
+    height: 200,
+    width: 200,
+    decoration: BoxDecoration(
+      color: Colors.grey[200],
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.error_outline, size: 48, color: Colors.red),
+        SizedBox(height: 8),
+        Text('Image not available', style: TextStyle(color: Colors.grey[600])),
+      ],
+    ),
+  ),
+)
 ```
 
 ### **Custom Loading Widget**
