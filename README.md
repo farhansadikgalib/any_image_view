@@ -51,15 +51,16 @@ flutter pub get
 
 ### 3️⃣ **Copy & Paste this code**
 ```dart
+// @formatter:off
 import 'package:any_image_view/any_image_view.dart';
 
 // Replace your existing Image widgets with this:
 AnyImageView(
-imagePath: 'https://picsum.photos/300/200',
-height: 200,
-width: 300,
-borderRadius: BorderRadius.circular(12),
-onTap: () => print('Image tapped!'),
+  imagePath: 'https://picsum.photos/300/200',
+  height: 200,
+  width: 300,
+  borderRadius: BorderRadius.circular(12),
+  onTap: () => print('Image tapped!'),
 )
 ```
 
@@ -71,66 +72,71 @@ onTap: () => print('Image tapped!'),
 
 ### 📱 **Profile Pictures**
 ```dart
+// @formatter:off
 AnyImageView(
-imagePath: user.profileImageUrl,
-height: 80,
-width: 80,
-shape: BoxShape.circle,
-border: Border.all(color: Colors.blue, width: 2),
-onTap: () => _showProfileDetails(),
+  imagePath: user.profileImageUrl,
+  height: 80,
+  width: 80,
+  shape: BoxShape.circle,
+  border: Border.all(color: Colors.blue, width: 2),
+  onTap: () => _showProfileDetails(),
 )
 ```
 
 ### 🖼️ **Gallery Images with Custom Loading**
 ```dart
+// @formatter:off
 AnyImageView(
-imagePath: galleryItem.url,
-height: 200,
-width: double.infinity,
-boxFit: BoxFit.cover,
-borderRadius: BorderRadius.circular(8),
-placeholderWidget: Center(
-child: CircularProgressIndicator(),
-),
-errorWidget: Center(
-child: Icon(Icons.error, color: Colors.red),
-),
+  imagePath: galleryItem.url,
+  height: 200,
+  width: double.infinity,
+  boxFit: BoxFit.cover,
+  borderRadius: BorderRadius.circular(8),
+  placeholderWidget: Center(
+    child: CircularProgressIndicator(),
+  ),
+  errorWidget: Center(
+    child: Icon(Icons.error, color: Colors.red),
+  ),
 )
 ```
 
 ### 🎨 **SVG Icons & Logos**
 ```dart
+// @formatter:off
 AnyImageView(
-imagePath: 'assets/icons/app_logo.svg',
-height: 40,
-width: 40,
-fit: BoxFit.contain,
-placeholderWidget: SizedBox(
-height: 40,
-width: 40,
-child: LinearProgressIndicator(),
-),
+  imagePath: 'assets/icons/app_logo.svg',
+  height: 40,
+  width: 40,
+  fit: BoxFit.contain,
+  placeholderWidget: SizedBox(
+    height: 40,
+    width: 40,
+    child: LinearProgressIndicator(),
+  ),
 )
 ```
 
 ### 🎬 **Lottie Animations**
 ```dart
+// @formatter:off
 AnyImageView(
-imagePath: 'assets/animations/loading.json',
-height: 100,
-width: 100,
-fit: BoxFit.contain,
+  imagePath: 'assets/animations/loading.json',
+  height: 100,
+  width: 100,
+  fit: BoxFit.contain,
 )
 ```
 
 ### 📸 **XFile from Image Picker**
 ```dart
+// @formatter:off
 AnyImageView(
-imagePath: pickedFile, // XFile object
-height: 250,
-width: 250,
-borderRadius: BorderRadius.circular(15),
-fadeDuration: Duration(milliseconds: 300),
+  imagePath: pickedFile, // XFile object
+  height: 250,
+  width: 250,
+  borderRadius: BorderRadius.circular(15),
+  fadeDuration: Duration(milliseconds: 300),
 )
 ```
 
@@ -200,92 +206,96 @@ class _ImagePickerScreenState extends State<ImagePickerScreen> {
 
 ### **Card-Style Image with Custom Loading**
 ```dart
+// @formatter:off
 AnyImageView(
-imagePath: 'https://example.com/image.jpg',
-height: 200,
-width: double.infinity,
-borderRadius: BorderRadius.circular(16),
-boxShadow: [
-BoxShadow(
-color: Colors.black.withOpacity(0.1),
-blurRadius: 8,
-offset: Offset(0, 4),
-),
-],
-margin: EdgeInsets.all(16),
-placeholderWidget: Container(
-height: 200,
-width: double.infinity,
-decoration: BoxDecoration(
-color: Colors.grey[200],
-borderRadius: BorderRadius.circular(16),
-),
-child: Center(
-child: CircularProgressIndicator(),
-),
-),
-onTap: () => _openImageDetails(),
+  imagePath: 'https://example.com/image.jpg',
+  height: 200,
+  width: double.infinity,
+  borderRadius: BorderRadius.circular(16),
+  boxShadow: [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.1),
+      blurRadius: 8,
+      offset: Offset(0, 4),
+    ),
+  ],
+  margin: EdgeInsets.all(16),
+  placeholderWidget: Container(
+    height: 200,
+    width: double.infinity,
+    decoration: BoxDecoration(
+      color: Colors.grey[200],
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Center(
+      child: CircularProgressIndicator(),
+    ),
+  ),
+  onTap: () => _openImageDetails(),
 )
 ```
 
+
 ### **Circular Avatar with Error Handling**
 ```dart
+// @formatter:off
 AnyImageView(
-imagePath: user.avatarUrl,
-height: 60,
-width: 60,
-shape: BoxShape.circle,
-border: Border.all(color: Colors.white, width: 3),
-boxShadow: [
-BoxShadow(
-color: Colors.black.withOpacity(0.2),
-blurRadius: 6,
-offset: Offset(0, 2),
-),
-],
-errorWidget: Container(
-height: 60,
-width: 60,
-decoration: BoxDecoration(
-shape: BoxShape.circle,
-color: Colors.grey[300],
-),
-child: Icon(Icons.person, color: Colors.grey[600]),
-),
+  imagePath: user.avatarUrl,
+  height: 60,
+  width: 60,
+  shape: BoxShape.circle,
+  border: Border.all(color: Colors.white, width: 3),
+  boxShadow: [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.2),
+      blurRadius: 6,
+      offset: Offset(0, 2),
+    ),
+  ],
+  errorWidget: Container(
+    height: 60,
+    width: 60,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: Colors.grey[300],
+    ),
+    child: Icon(Icons.person, color: Colors.grey[600]),
+  ),
 )
 ```
 
 ### **Hero Image with Gradient Overlay**
 ```dart
+// @formatter:off
 Stack(
-children: [
-AnyImageView(
-imagePath: 'assets/images/hero.jpg',
-height: 300,
-width: double.infinity,
-fit: BoxFit.cover,
-fadeDuration: Duration(milliseconds: 800),
-),
-Positioned(
-bottom: 0,
-left: 0,
-right: 0,
-child: Container(
-decoration: BoxDecoration(
-gradient: LinearGradient(
-begin: Alignment.topCenter,
-end: Alignment.bottomCenter,
-colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
-),
-),
-padding: EdgeInsets.all(16),
-child: Text(
-'Beautiful Hero Image',
-style: TextStyle(color: Colors.white, fontSize: 18),
-),
-),
-),
-],
+  children: [
+    AnyImageView(
+      imagePath: 'assets/images/hero.jpg',
+      height: 300,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      fadeDuration: Duration(milliseconds: 800),
+    ),
+    Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+          ),
+        ),
+        padding: EdgeInsets.all(16),
+        child: Text(
+          'Beautiful Hero Image',
+          style: TextStyle(color: Colors.white, fontSize: 18),
+        ),
+      ),
+    ),
+  ],
 )
 ```
 
@@ -297,6 +307,7 @@ style: TextStyle(color: Colors.white, fontSize: 18),
 Improved `cached_network_image` implementation with advanced features:
 
 ```dart
+// @formatter:off
 AnyImageView(
   imagePath: 'https://example.com/large-image.jpg',
   height: 300,  // Automatically used for memory cache optimization
@@ -338,6 +349,7 @@ AnyImageView(
 
 ### **Memory-Efficient Large Images**
 ```dart
+// @formatter:off
 // Optimize memory for high-resolution images
 // The widget automatically uses height/width for memory cache optimization
 AnyImageView(
@@ -350,6 +362,7 @@ AnyImageView(
 
 ### **Retry Logic for Poor Networks**
 ```dart
+// @formatter:off
 // Automatically retry failed network requests
 AnyImageView(
   imagePath: 'https://slow-server.com/image.jpg',
@@ -409,65 +422,44 @@ AnyImageView(
 
 ### **Custom Error Widget**
 ```dart
-AnyImageView(
-imagePath: 'https://broken-link.com/image.jpg',
-height: 200,
-width: 200,
-errorWidget: Container(
-height: 200,
-width: 200,
-decoration: BoxDecoration(
-color: Colors.grey[200],
-borderRadius: BorderRadius.circular(8),
-),
-child: Column(
-mainAxisAlignment: MainAxisAlignment.center,
-children: [
-Icon(Icons.error_outline, size: 48, color: Colors.red),
-SizedBox(height: 8),
-Text('Image not available', style: TextStyle(color: Colors.grey[600])),
-],
-),
-),
-)
+
 ```
 
 ### **Custom Loading Widget**
 ```dart
+// @formatter:off
 AnyImageView(
-imagePath: 'https://slow-server.com/large-image.jpg',
-height: 300,
-width: 300,
-placeholderWidget: Container(
-height: 300,
-width: 300,
-decoration: BoxDecoration(
-gradient: LinearGradient(
-colors: [Colors.grey[300]!, Colors.grey[200]!],
-),
-),
-child: Center(
-child: Column(
-mainAxisAlignment: MainAxisAlignment.center,
-children: [
-CircularProgressIndicator(),
-SizedBox(height: 8),
-Text('Loading...', style: TextStyle(color: Colors.grey[600])),
-],
-),
-),
-),
+  imagePath: 'https://broken-link.com/image.jpg',
+  height: 200,
+  width: 200,
+  errorWidget: Container(
+    height: 200,
+    width: 200,
+    decoration: BoxDecoration(
+      color: Colors.grey[200],
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.error_outline, size: 48, color: Colors.red),
+        SizedBox(height: 8),
+        Text('Image not available', style: TextStyle(color: Colors.grey[600])),
+      ],
+    ),
+  ),
 )
 ```
 
 ### **Smooth Fade Animations**
 ```dart
+// @formatter:off
 AnyImageView(
-imagePath: 'https://example.com/image.jpg',
-height: 200,
-width: 200,
-fadeDuration: Duration(milliseconds: 800), // Custom fade duration
-onTap: () => print('Image with smooth fade animation'),
+  imagePath: 'https://example.com/image.jpg',
+  height: 200,
+  width: 200,
+  fadeDuration: Duration(milliseconds: 800), // Custom fade duration
+  onTap: () => print('Image with smooth fade animation'),
 )
 ```
 
@@ -490,41 +482,43 @@ onTap: () => print('Image with smooth fade animation'),
 
 ### **Before (Multiple widgets needed):**
 ```dart
+// @formatter:off
 // Network images
 CachedNetworkImage(
-imageUrl: imageUrl,
-height: 200,
-width: 200,
-placeholder: (context, url) => CircularProgressIndicator(),
-errorWidget: (context, url, error) => Icon(Icons.error),
+  imageUrl: imageUrl,
+  height: 200,
+  width: 200,
+  placeholder: (context, url) => CircularProgressIndicator(),
+  errorWidget: (context, url, error) => Icon(Icons.error),
 )
 
 // Local files
 Image.file(
-File(filePath),
-height: 200,
-width: 200,
-errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+  File(filePath),
+  height: 200,
+  width: 200,
+  errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
 )
 
 // SVG files
 SvgPicture.asset(
-'assets/icon.svg',
-height: 200,
-width: 200,
-placeholderBuilder: (context) => CircularProgressIndicator(),
+  'assets/icon.svg',
+  height: 200,
+  width: 200,
+  placeholderBuilder: (context) => CircularProgressIndicator(),
 )
 ```
 
 ### **After (One widget for all):**
 ```dart
+// @formatter:off
 // All image types with one widget!
 AnyImageView(
-imagePath: imageUrl, // or filePath, or asset path, or XFile
-height: 200,
-width: 200,
-placeholderWidget: CircularProgressIndicator(),
-errorWidget: Icon(Icons.error),
+  imagePath: imageUrl, // or filePath, or asset path, or XFile
+  height: 200,
+  width: 200,
+  placeholderWidget: CircularProgressIndicator(),
+  errorWidget: Icon(Icons.error),
 )
 ```
 
@@ -534,67 +528,71 @@ errorWidget: Icon(Icons.error),
 
 ### **1. Performance Optimization**
 ```dart
+// @formatter:off
 // Always specify dimensions for better performance
 AnyImageView(
-imagePath: imageUrl,
-height: 200,
-width: 200, // Specific dimensions improve performance
-fit: BoxFit.cover,
+  imagePath: imageUrl,
+  height: 200,
+  width: 200, // Specific dimensions improve performance
+  fit: BoxFit.cover,
 )
 ```
 
 ### **2. Memory Management**
 ```dart
+// @formatter:off
 // Use appropriate placeholder sizes for large galleries
 AnyImageView(
-imagePath: imageUrl,
-placeholderWidget: SizedBox(
-height: 30,
-width: 30,
-child: CircularProgressIndicator(strokeWidth: 2),
-),
+  imagePath: imageUrl,
+  placeholderWidget: SizedBox(
+    height: 30,
+    width: 30,
+    child: CircularProgressIndicator(strokeWidth: 2),
+  ),
 )
 ```
 
 ### **3. Accessibility**
 ```dart
+// @formatter:off
 // Add semantic labels for screen readers
 AnyImageView(
-imagePath: imageUrl,
-onTap: () => _handleTap(),
-).semanticsLabel('User profile picture'),
-)
+  imagePath: imageUrl,
+  onTap: () => _handleTap(),
+).semanticsLabel('User profile picture')
 ```
 
 ### **4. Custom Animations**
 ```dart
+// @formatter:off
 // Use longer fade duration for hero images
 AnyImageView(
-imagePath: heroImageUrl,
-fadeDuration: Duration(milliseconds: 1000), // Smooth transition
+  imagePath: heroImageUrl,
+  fadeDuration: Duration(milliseconds: 1000), // Smooth transition
 )
 ```
 
 ### **5. Error Recovery**
 ```dart
+// @formatter:off
 // Default broken_image icon is shown automatically on error
 AnyImageView(
-imagePath: userAvatarUrl,
-height: 100,
-width: 100,
-shape: BoxShape.circle,
+  imagePath: userAvatarUrl,
+  height: 100,
+  width: 100,
+  shape: BoxShape.circle,
 )
 
 // Or provide a custom error widget for better UX
 AnyImageView(
-imagePath: userAvatarUrl,
-errorWidget: Container(
-decoration: BoxDecoration(
-shape: BoxShape.circle,
-color: Colors.grey[300],
-),
-child: Icon(Icons.person, size: 40),
-),
+  imagePath: userAvatarUrl,
+  errorWidget: Container(
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: Colors.grey[300],
+    ),
+    child: Icon(Icons.person, size: 40),
+  ),
 )
 ```
 
