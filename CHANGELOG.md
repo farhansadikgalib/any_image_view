@@ -6,7 +6,12 @@
 - Improved: Changed `FilterQuality` from `medium` to `high` for better image rendering.
 - Improved: Simplified network image loading by removing cache dimension calculations.
 - Improved: Better stability by eliminating cache-related edge cases.
+- Improved: Error fallback now uses `FittedBox` with 20px padding for better proportional scaling.
+- Improved: Circular avatars now use `ClipOval` for perfect circle clipping.
 - Fixed: Images no longer lose quality due to memory cache dimension constraints.
+- Fixed: Circular shape (`BoxShape.circle`) now properly clips image content.
+- Updated: `flutter_svg` to ^2.2.3 (latest).
+- Updated: Android Gradle Plugin to 8.9.1 for better compatibility.
 
 ---
 

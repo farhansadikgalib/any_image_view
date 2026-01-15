@@ -175,21 +175,25 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
           const SizedBox(height: 24),
           _buildSection(
             'Circular Avatar with Zoom',
-            AnyImageView(
-              imagePath:
-                  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop',
-              height: 120,
-              width: 120,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.blue, width: 3),
-              enableZoom: true,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.blue.withValues(alpha: 0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+            Center(
+              child: AnyImageView(
+                imagePath:
+                    'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop',
+                height: 120,
+                width: 120,
+                fit: BoxFit.cover,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blue, width: 3),
+                enableZoom: true,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    spreadRadius: 2,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -218,6 +222,30 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
                   ],
                 ),
               ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _buildSection(
+            'Default Error Image (Built-in Broken Image Icon)',
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '🛡️ Default error handling with 20px padding',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                AnyImageView(
+                  imagePath: 'https://this-url-does-not-exist.com/broken.jpg',
+                  height: 200,
+                  width: double.infinity,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 24),

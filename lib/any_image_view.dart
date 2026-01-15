@@ -62,7 +62,6 @@ class AnyImageView extends StatelessWidget {
   /// Maximum number of retry attempts for failed network requests.
   final int maxRetryAttempts;
 
-
   /// Creates an image view widget with various customization options.
   const AnyImageView({
     Key? key,
@@ -122,12 +121,12 @@ class AnyImageView extends StatelessWidget {
           shape: shape,
           borderRadius: shape == BoxShape.rectangle ? borderRadius : null,
         ),
-        child: ClipRRect(
-          borderRadius: shape == BoxShape.rectangle
-              ? (borderRadius ?? BorderRadius.zero)
-              : BorderRadius.zero,
-          child: imageContent,
-        ),
+        child: shape == BoxShape.circle
+            ? ClipOval(child: imageContent)
+            : ClipRRect(
+                borderRadius: borderRadius ?? BorderRadius.zero,
+                child: imageContent,
+              ),
       ),
     );
   }
@@ -140,13 +139,14 @@ class AnyImageView extends StatelessWidget {
         Container(
           height: height,
           width: width,
+          padding: const EdgeInsets.all(20),
           color: Colors.grey[200],
-          child: Icon(
-            Icons.broken_image,
-            size: (height != null && width != null)
-                ? (height! < width! ? height! * 0.5 : width! * 0.5)
-                : 48,
-            color: Colors.grey[400],
+          child: FittedBox(
+            fit: BoxFit.contain,
+            child: Icon(
+              Icons.broken_image,
+              color: Colors.grey[400],
+            ),
           ),
         );
 
