@@ -117,12 +117,12 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
           ),
           const SizedBox(height: 24),
           _buildSection(
-            'Memory-Optimized Network Image',
+            'Best Resolution Network Image',
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  '🚀 Automatically optimized using height/width',
+                  '🚀 Images load at full original resolution',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey,
@@ -137,7 +137,6 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
                   width: double.infinity,
                   fit: BoxFit.cover,
                   borderRadius: BorderRadius.circular(12),
-                  useMemoryCache: true,
                 )
               ],
             ),
