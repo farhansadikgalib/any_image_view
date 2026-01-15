@@ -1,3 +1,15 @@
+## 2.0.0
+- **BREAKING**: Removed image caching to ensure best resolution images are always loaded.
+- **BREAKING**: Removed `cacheMaxAge` parameter (no longer needed without caching).
+- **BREAKING**: Removed `useMemoryCache` parameter (no longer needed without caching).
+- Improved: Network images now load at full original resolution without any downscaling.
+- Improved: Changed `FilterQuality` from `medium` to `high` for better image rendering.
+- Improved: Simplified network image loading by removing cache dimension calculations.
+- Improved: Better stability by eliminating cache-related edge cases.
+- Fixed: Images no longer lose quality due to memory cache dimension constraints.
+
+---
+
 ## 1.9.0
 - Fixed: Network URL image loading for URLs with file extensions (e.g., Pexels, direct image URLs ending in .jpg, .jpeg, .png).
 - Fixed: Image type detection now prioritizes URL protocol check before file extension check.
