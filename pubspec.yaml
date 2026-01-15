@@ -1,5 +1,5 @@
 name: any_image_view
-version: 1.9.5
+version: 2.0.0
 
 description: "A versatile Flutter image viewer supporting PNG, JPG, WebP, GIF, TIFF, RAW, SVG, Lottie, XFile, and network images with best resolution — all in one seamless package."
 topics:
@@ -10,12 +10,13 @@ topics:
   - lottie
 
 homepage: https://farhansadikgalib.com/
-repository: https://github.com/farhansadikgalib/any_image_view/blob/main/README.md
+repository: https://github.com/farhansadikgalib/any_image_view
 issue_tracker: https://github.com/farhansadikgalib/any_image_view/issues
+documentation: https://pub.dev/documentation/any_image_view/latest/
 
 screenshots:
   - description: "any image view"
-    path: raw/ss.png
+    path: raw/banner.png
 
 environment:
   sdk: ^3.2.6

@@ -1,4 +1,35 @@
+/// A versatile Flutter image viewer supporting multiple image formats.
+///
+/// This library provides [AnyImageView], a single widget that can display:
+/// - Network images (HTTP/HTTPS URLs)
+/// - Local asset images (PNG, JPG, WebP, GIF, etc.)
+/// - SVG graphics (local assets)
+/// - Lottie animations (JSON/ZIP)
+/// - XFile objects (from image_picker)
+/// - Local file paths
+///
+/// ## Features
+/// - Built-in shimmer loading animation
+/// - Automatic error handling with broken_image fallback
+/// - Pinch-to-zoom support
+/// - HTTP headers for authenticated requests
+/// - Customizable styling (border, shadow, shape)
+///
+/// ## Usage
+/// ```dart
+/// import 'package:any_image_view/any_image_view.dart';
+///
+/// AnyImageView(
+///   imagePath: 'https://example.com/image.jpg',
+///   height: 200,
+///   width: 200,
+///   borderRadius: BorderRadius.circular(12),
+/// )
+/// ```
+library any_image_view;
+
 import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
@@ -278,34 +309,73 @@ class AnyImageView extends StatelessWidget {
   }
 }
 
-// Update the enum
+/// Supported image types for [AnyImageView].
 enum ImageType {
+  /// Scalable Vector Graphics format.
   svg,
+
+  /// Portable Network Graphics format.
   png,
+
+  /// JPEG format (alternative extension).
   jpg,
+
+  /// JPEG format.
   jpeg,
+
+  /// Tagged Image File Format.
   tiff,
+
+  /// Raw image format.
   raw,
+
+  /// WebP image format.
   webp,
+
+  /// Graphics Interchange Format.
   gif,
+
+  /// High Efficiency Image Container format.
   heic,
+
+  /// High Efficiency Image File format.
   heif,
+
+  /// Bitmap image format.
   bmp,
+
+  /// Icon file format.
   ico,
+
+  /// OpenEXR format.
   exr,
+
+  /// High Dynamic Range format.
   hdr,
+
+  /// Network URL (HTTP/HTTPS).
   network,
+
+  /// Lottie JSON animation.
   json,
+
+  /// Lottie ZIP animation.
   zip,
+
+  /// Local file path.
   file,
 }
 
-// Update the extension
+/// Extension to detect image type from a string path.
 extension ImageTypeExtension on String {
+  /// Returns the [ImageType] based on the string content.
+  ///
+  /// Checks URL protocol first, then file path prefix, then file extension.
   ImageType get imageType {
     // Check for network URLs FIRST before checking extensions
-    if (startsWith('http://') || startsWith('https://'))
+    if (startsWith('http://') || startsWith('https://')) {
       return ImageType.network;
+    }
     // Check for file paths
     if (startsWith('file://') || startsWith('/')) return ImageType.file;
     // Check for specific file extensions (for local assets)

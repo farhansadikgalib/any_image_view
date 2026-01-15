@@ -1,9 +1,13 @@
-## 1.9.5
+## 2.0.0
 - Improved: Error fallback now uses `FittedBox` with 20px padding for better proportional scaling.
 - Improved: Circular avatars now use `ClipOval` for perfect circle clipping.
+- Improved: Added comprehensive library-level documentation for better pub.dev score.
+- Improved: Added documentation to all public APIs (ImageType enum, ImageTypeExtension).
 - Fixed: Circular shape (`BoxShape.circle`) now properly clips image content.
+- Fixed: Repository URL now points to correct GitHub repository root.
 - Updated: `flutter_svg` to ^2.2.3 (latest).
 - Updated: Android Gradle Plugin to 8.9.1 for better compatibility.
+- Added: Documentation URL in pubspec.yaml.
 
 ---
 
