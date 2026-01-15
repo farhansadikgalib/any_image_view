@@ -1,14 +1,6 @@
-## 2.0.0
-- **BREAKING**: Removed image caching to ensure best resolution images are always loaded.
-- **BREAKING**: Removed `cacheMaxAge` parameter (no longer needed without caching).
-- **BREAKING**: Removed `useMemoryCache` parameter (no longer needed without caching).
-- Improved: Network images now load at full original resolution without any downscaling.
-- Improved: Changed `FilterQuality` from `medium` to `high` for better image rendering.
-- Improved: Simplified network image loading by removing cache dimension calculations.
-- Improved: Better stability by eliminating cache-related edge cases.
+## 1.9.5
 - Improved: Error fallback now uses `FittedBox` with 20px padding for better proportional scaling.
 - Improved: Circular avatars now use `ClipOval` for perfect circle clipping.
-- Fixed: Images no longer lose quality due to memory cache dimension constraints.
 - Fixed: Circular shape (`BoxShape.circle`) now properly clips image content.
 - Updated: `flutter_svg` to ^2.2.3 (latest).
 - Updated: Android Gradle Plugin to 8.9.1 for better compatibility.
