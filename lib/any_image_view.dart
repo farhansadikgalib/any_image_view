@@ -59,14 +59,9 @@ class AnyImageView extends StatelessWidget {
   /// Custom HTTP headers for network images.
   final Map<String, String>? httpHeaders;
 
-  /// Maximum cache duration for network images.
-  final Duration? cacheMaxAge;
-
   /// Maximum number of retry attempts for failed network requests.
   final int maxRetryAttempts;
 
-  /// Whether to use memory cache for network images.
-  final bool useMemoryCache;
 
   /// Creates an image view widget with various customization options.
   const AnyImageView({
@@ -88,9 +83,7 @@ class AnyImageView extends StatelessWidget {
     this.fadeDuration = const Duration(milliseconds: 400),
     this.enableZoom = false,
     this.httpHeaders,
-    this.cacheMaxAge,
     this.maxRetryAttempts = 3,
-    this.useMemoryCache = true,
   }) : super(key: key);
 
   @override
@@ -237,32 +230,25 @@ class AnyImageView extends StatelessWidget {
           fit: fit ?? BoxFit.contain,
         );
       case ImageType.network:
-        // Handles network image loading with advanced caching and retry logic.
-        // Convert dimensions to int, handling infinity and null cases
-        final int? cacheWidth =
-            (width != null && width!.isFinite) ? width!.toInt() : null;
-        final int? cacheHeight =
-            (height != null && height!.isFinite) ? height!.toInt() : null;
-
+        // Handles network image loading without caching for best resolution.
         return CachedNetworkImage(
           height: height,
           width: width,
-          fit: fit,
+          fit: fit ?? BoxFit.cover,
           imageUrl: path,
           placeholder: (_, __) => _buildLoadingWidget(),
           errorWidget: (_, __, ___) => errorFallback(),
           fadeInDuration: fadeDuration,
           fadeOutDuration: const Duration(milliseconds: 300),
           httpHeaders: httpHeaders,
-          cacheKey: path,
-          maxHeightDiskCache: cacheHeight,
-          maxWidthDiskCache: cacheWidth,
-          memCacheHeight: cacheHeight,
-          memCacheWidth: cacheWidth,
+          // Disable caching for best resolution
+          memCacheHeight: null,
+          memCacheWidth: null,
+          maxHeightDiskCache: null,
+          maxWidthDiskCache: null,
           useOldImageOnUrlChange: false,
-          filterQuality: FilterQuality.medium,
+          filterQuality: FilterQuality.high,
           errorListener: (error) {
-            // Log error for debugging (can be extended with custom error handling)
             debugPrint('CachedNetworkImage Error: $error');
           },
         );
