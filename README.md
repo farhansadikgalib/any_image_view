@@ -18,7 +18,7 @@
 
 Tired of juggling multiple image widgets? Say goodbye to complex image handling! This package gives you **one widget that handles everything**:
 
-- ✅ **Network images** with automatic caching and fade animations
+- ✅ **Network images** with best resolution and fade animations
 - ✅ **Local files** from your device (XFile & String paths)
 - ✅ **SVG graphics** (local assets) with perfect scaling and custom placeholders
 - ✅ **Lottie animations** (local assets) for engaging content (JSON/ZIP)
@@ -28,7 +28,7 @@ Tired of juggling multiple image widgets? Say goodbye to complex image handling!
 - ✅ **Advanced error handling** with built-in broken_image icon
 - ✅ **Smooth animations** with configurable fade duration
 - ✅ **Pinch-to-zoom and pan** support for images
-- ✅ **Memory optimization** for network images with cache control
+- ✅ **High quality** images with FilterQuality.high rendering
 - ✅ **HTTP headers** support for authenticated network requests
 - 🛡️ **Robust & Reliable** - Comprehensive error handling and validation
 
@@ -41,7 +41,7 @@ Tired of juggling multiple image widgets? Say goodbye to complex image handling!
 ### 1️⃣ **Add to pubspec.yaml**
 ```yaml
 dependencies:
-  any_image_view: ^1.6.0
+  any_image_view: ^2.0.0
 ```
 
 ### 2️⃣ **Run this command**
@@ -299,8 +299,8 @@ Improved `cached_network_image` implementation with advanced features:
 ```dart
 AnyImageView(
   imagePath: 'https://example.com/large-image.jpg',
-  height: 300,  // Automatically used for memory cache optimization
-  width: 300,   // Automatically used for memory cache optimization
+  height: 300,  // Images load at full resolution
+  width: 300,   // No downscaling for best quality
   
   // Custom HTTP headers for authenticated requests
   httpHeaders: {
@@ -308,9 +308,7 @@ AnyImageView(
     'Custom-Header': 'custom_value',
   },
   
-  // Advanced caching control
-  useMemoryCache: true, // Enable in-memory caching
-  cacheMaxAge: Duration(days: 7), // Cache duration
+  // Retry control for network stability
   maxRetryAttempts: 3, // Retry failed requests
   
   // Enhanced error handling
@@ -336,14 +334,13 @@ AnyImageView(
 )
 ```
 
-### **Memory-Efficient Large Images**
+### **Best Resolution Network Images**
 ```dart
-// Optimize memory for high-resolution images
-// The widget automatically uses height/width for memory cache optimization
+// Load images at full original resolution for best quality
 AnyImageView(
   imagePath: 'https://example.com/4k-image.jpg',
-  height: 200,  // Used for memory cache
-  width: 300,   // Used for memory cache
+  height: 200,
+  width: 300,
   fit: BoxFit.cover,
 )
 ```
@@ -384,9 +381,7 @@ AnyImageView(
 | `fadeDuration` | `Duration` | `400ms` | Fade animation duration |
 | `enableZoom` | `bool` | `false` | Enable pinch-to-zoom functionality |
 | `httpHeaders` | `Map<String, String>?` | `null` | Custom HTTP headers for network images |
-| `cacheMaxAge` | `Duration?` | `null` | Maximum cache duration for network images |
 | `maxRetryAttempts` | `int` | `3` | Max retry attempts for failed requests |
-| `useMemoryCache` | `bool` | `true` | Enable in-memory caching (uses height/width for cache dimensions) |
 
 ### **Supported Image Formats**
 
