@@ -13,7 +13,7 @@
 
 ```yaml
 dependencies:
-  any_image_view: ^2.0.0
+  any_image_view: ^2.1.0
 ```
 
 ## Usage
@@ -27,8 +27,9 @@ AnyImageView(imagePath: 'https://example.com/image.jpg', height: 200, width: 200
 // Asset
 AnyImageView(imagePath: 'assets/image.png', height: 200, width: 200)
 
-// SVG
+// SVG (asset or network)
 AnyImageView(imagePath: 'assets/icon.svg', height: 40, width: 40)
+AnyImageView(imagePath: 'https://example.com/icon.svg', height: 40, width: 40, svgColor: Colors.blue)
 
 // Lottie
 AnyImageView(imagePath: 'assets/animation.json', height: 100, width: 100)
@@ -64,7 +65,9 @@ AnyImageView(
 | `enableZoom` | `bool` | Pinch-to-zoom (default: false) |
 | `placeholderWidget` | `Widget?` | Custom loader |
 | `errorWidget` | `Widget?` | Custom error |
-| `httpHeaders` | `Map?` | Auth headers |
+| `httpHeaders` | `Map?` | Auth headers for network/SVG |
+| `svgColor` | `Color?` | Tint color for SVG (asset & network) |
+| `svgColorFilter` | `ColorFilter?` | Custom color filter for SVG |
 
 ## Supported Formats
 

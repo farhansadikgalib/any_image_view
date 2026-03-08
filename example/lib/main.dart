@@ -154,12 +154,39 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
           ),
           const SizedBox(height: 24),
           _buildSection(
-            'SVG Image',
+            'SVG Image (Local Asset)',
             AnyImageView(
               imagePath: 'assets/svg/flutter.svg',
               height: 100,
               width: 100,
               fit: BoxFit.contain,
+            ),
+          ),
+          const SizedBox(height: 24),
+          _buildSection(
+            'SVG from Network with Custom Color',
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Network SVG + svgColor (e.g. blue tint)',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                AnyImageView(
+                  imagePath:
+                      'https://www.svgrepo.com/show/530641/telephone.svg',
+                  height: 100,
+                  width: 100,
+                  fit: BoxFit.contain,
+                  // svgColor: Colors.blue,
+                  svgColorFilter: ColorFilter.linearToSrgbGamma(),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 24),

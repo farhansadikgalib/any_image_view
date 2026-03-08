@@ -1,3 +1,13 @@
+## 2.1.0
+- Added: **Network SVG support** — SVG images from HTTP/HTTPS URLs (e.g. `https://example.com/icon.svg`) are loaded via `http` and rendered with `SvgPicture.string()`; failed loads show the error fallback.
+- Added: **`svgColor`** — optional color to tint SVG images (asset and network) using `BlendMode.srcIn`.
+- Added: **`svgColorFilter`** — optional custom `ColorFilter` for SVG images (overrides `svgColor` when both are set).
+- Fixed: **Local and network SVG** — both now use a safe loader: load SVG string (asset bundle or network), then `SvgPicture.string()`; load or sync parse errors show the error fallback instead of crashing.
+- Fixed: **"Invalid SVG data" crash** — SVG loading no longer uses a strict pre-parse step; invalid SVG falls back to the error widget.
+- Dependency: added `http: ^1.2.2` for network SVG fetching.
+
+---
+
 ## 2.0.0
 - Improved: Error fallback now uses `FittedBox` with 20px padding for better proportional scaling.
 - Improved: Circular avatars now use `ClipOval` for perfect circle clipping.

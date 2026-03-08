@@ -2,8 +2,9 @@
 ///
 /// This library provides [AnyImageView], a single widget that can display:
 /// - Network images (HTTP/HTTPS URLs)
+/// - Network SVG images (URLs ending with .svg)
 /// - Local asset images (PNG, JPG, WebP, GIF, etc.)
-/// - SVG graphics (local assets)
+/// - SVG graphics (local assets and network), with optional [svgColor] / [svgColorFilter]
 /// - Lottie animations (JSON/ZIP)
 /// - XFile objects (from image_picker)
 /// - Local file paths
@@ -33,7 +34,9 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
 
 /// A widget that displays an image from various sources (local file, network, SVG, etc.)
@@ -93,6 +96,13 @@ class AnyImageView extends StatelessWidget {
   /// Maximum number of retry attempts for failed network requests.
   final int maxRetryAttempts;
 
+  /// Optional color to tint SVG images (both asset and network).
+  /// When set, SVG fill/stroke is replaced with this color (BlendMode.srcIn).
+  final Color? svgColor;
+
+  /// Optional custom color filter for SVG images (overrides [svgColor] if both set).
+  final ColorFilter? svgColorFilter;
+
   /// Creates an image view widget with various customization options.
   const AnyImageView({
     Key? key,
@@ -114,6 +124,8 @@ class AnyImageView extends StatelessWidget {
     this.enableZoom = false,
     this.httpHeaders,
     this.maxRetryAttempts = 3,
+    this.svgColor,
+    this.svgColorFilter,
   }) : super(key: key);
 
   @override
@@ -160,6 +172,22 @@ class AnyImageView extends StatelessWidget {
               ),
       ),
     );
+  }
+
+  /// Effective color filter for SVG: [svgColorFilter] if set, else from [svgColor].
+  ColorFilter? get _effectiveSvgColorFilter {
+    if (svgColorFilter != null) return svgColorFilter;
+    if (svgColor != null) {
+      return ColorFilter.mode(svgColor!, BlendMode.srcIn);
+    }
+    return null;
+  }
+
+  /// True if the path is a network URL pointing to an SVG file.
+  static bool _isSvgUrl(String path) {
+    final lower = path.toLowerCase();
+    return (lower.startsWith('http://') || lower.startsWith('https://')) &&
+        (lower.endsWith('.svg') || lower.contains('.svg?'));
   }
 
   /// Builds the image widget based on the provided `imagePath`.
@@ -243,13 +271,17 @@ class AnyImageView extends StatelessWidget {
   Widget _buildStringImage(String path, Widget Function() errorFallback) {
     switch (path.imageType) {
       case ImageType.svg:
-        // Handles SVG image loading (local assets only).
-        return SvgPicture.asset(
-          path,
+        // Handles SVG image loading (local assets) with parse validation to avoid crashes.
+        return _SafeSvgLoader(
+          path: path,
+          isNetwork: false,
+          httpHeaders: httpHeaders,
           height: height,
           width: width,
           fit: fit ?? BoxFit.contain,
-          placeholderBuilder: (_) => _buildLoadingWidget(),
+          colorFilter: _effectiveSvgColorFilter,
+          loadingWidget: _buildLoadingWidget(),
+          errorFallback: errorFallback,
         );
       case ImageType.json:
       case ImageType.zip:
@@ -261,6 +293,20 @@ class AnyImageView extends StatelessWidget {
           fit: fit ?? BoxFit.contain,
         );
       case ImageType.network:
+        // Handles network SVG (URLs ending with .svg) with fetch + parse validation.
+        if (_isSvgUrl(path)) {
+          return _SafeSvgLoader(
+            path: path,
+            isNetwork: true,
+            httpHeaders: httpHeaders,
+            height: height,
+            width: width,
+            fit: fit ?? BoxFit.contain,
+            colorFilter: _effectiveSvgColorFilter,
+            loadingWidget: _buildLoadingWidget(),
+            errorFallback: errorFallback,
+          );
+        }
         // Handles network image loading without caching for best resolution.
         return CachedNetworkImage(
           height: height,
@@ -306,6 +352,100 @@ class AnyImageView extends StatelessWidget {
           width: width,
           borderRadius: borderRadius,
         );
+  }
+}
+
+/// Loads and validates SVG (asset or network), then shows SvgPicture or error fallback.
+class _SafeSvgLoader extends StatefulWidget {
+  const _SafeSvgLoader({
+    required this.path,
+    required this.isNetwork,
+    required this.httpHeaders,
+    required this.height,
+    required this.width,
+    required this.fit,
+    required this.colorFilter,
+    required this.loadingWidget,
+    required this.errorFallback,
+  });
+
+  final String path;
+  final bool isNetwork;
+  final Map<String, String>? httpHeaders;
+  final double? height;
+  final double? width;
+  final BoxFit fit;
+  final ColorFilter? colorFilter;
+  final Widget loadingWidget;
+  final Widget Function() errorFallback;
+
+  @override
+  State<_SafeSvgLoader> createState() => _SafeSvgLoaderState();
+}
+
+class _SafeSvgLoaderState extends State<_SafeSvgLoader> {
+  late final Future<String?> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = widget.isNetwork
+        ? _loadNetworkSvg(widget.path, widget.httpHeaders)
+        : _loadAssetSvg(widget.path);
+  }
+
+  static Future<String?> _loadAssetSvg(String path) async {
+    try {
+      final String svg = await rootBundle.loadString(path);
+      return svg.isNotEmpty ? svg : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<String?> _loadNetworkSvg(
+    String url,
+    Map<String, String>? headers,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers ?? {},
+      );
+      if (response.statusCode != 200) return null;
+      final String body = response.body;
+      return body.isNotEmpty ? body : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String?>(
+      future: _future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return widget.loadingWidget;
+        }
+        final String? svg = snapshot.data;
+        if (snapshot.hasError || svg == null || svg.isEmpty) {
+          return widget.errorFallback();
+        }
+        try {
+          return SvgPicture.string(
+            svg,
+            height: widget.height,
+            width: widget.width,
+            fit: widget.fit,
+            colorFilter: widget.colorFilter,
+            placeholderBuilder: (_) => widget.loadingWidget,
+          );
+        } catch (_) {
+          return widget.errorFallback();
+        }
+      },
+    );
   }
 }
 

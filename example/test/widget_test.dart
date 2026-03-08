@@ -1,19 +1,23 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:example/main.dart';
 
 void main() {
-  testWidgets('Pick Image button is present and tappable', (
+  testWidgets('App loads and shows Any Image View title', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const MyApp());
 
-    // Verify the Pick Image button exists
-    expect(find.text('Pick Image'), findsOneWidget);
+    // Verify the app bar title is present
+    expect(find.text('Any Image View - Advanced Features'), findsOneWidget);
+  });
 
-    // Tap the Pick Image button
-    await tester.tap(find.text('Pick Image'));
-    await tester.pump();
+  testWidgets('Image gallery screen has photo library action', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
 
-    // You can add more expectations here if you mock image picking
+    // Verify the photo library IconButton exists (pick image from gallery)
+    expect(find.byIcon(Icons.photo_library), findsOneWidget);
   });
 }
