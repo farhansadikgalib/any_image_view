@@ -1,0 +1,30 @@
+name: example
+version: 1.0.0+1
+publish_to: none
+description: A new Flutter project.
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  cupertino_icons:
+  flutter:
+    sdk: flutter
+  image_picker:
+  any_image_view:
+    path: ..
+
+dev_dependencies:
+  flutter_lints:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/png/
+    - assets/svg/
+    - assets/lottie/
+    - assets/avif/
+    
+

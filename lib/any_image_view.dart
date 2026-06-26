@@ -1,0 +1,821 @@
+/// A versatile Flutter image viewer supporting multiple image formats.
+///
+/// This library provides [AnyImageView], a single widget that can display:
+/// - Network images (HTTP/HTTPS URLs)
+/// - Network SVG images (URLs ending with .svg)
+/// - Local asset images (PNG, JPG, WebP, GIF, etc.)
+/// - SVG graphics (local assets and network), with optional [svgColor] / [svgColorFilter]
+/// - Lottie animations (JSON/ZIP)
+/// - XFile objects (from image_picker)
+/// - Local file paths
+///
+/// ## Features
+/// - Built-in shimmer loading animation
+/// - Automatic error handling with broken_image fallback
+/// - Pinch-to-zoom support
+/// - HTTP headers for authenticated requests
+/// - Customizable styling (border, shadow, shape)
+///
+/// ## Usage
+/// ```dart
+/// import 'package:any_image_view/any_image_view.dart';
+///
+/// AnyImageView(
+///   imagePath: 'https://example.com/image.jpg',
+///   height: 200,
+///   width: 200,
+///   borderRadius: BorderRadius.circular(12),
+/// )
+/// ```
+library any_image_view;
+
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cross_file/cross_file.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_avif/flutter_avif.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:http/http.dart' as http;
+import 'package:lottie/lottie.dart';
+
+/// A widget that displays an image from various sources (local file, network, SVG, etc.)
+/// with customizable properties, premium skeleton loading effect, and optional zoom.
+class AnyImageView extends StatelessWidget {
+  /// The path or source of the image. Can be a local file, network URL, or other formats.
+  final Object? imagePath;
+
+  /// The height of the image.
+  final double? height;
+
+  /// The width of the image.
+  final double? width;
+
+  /// How the image should be inscribed into the box.
+  final BoxFit? fit;
+
+  /// Alignment of the image within its container.
+  final Alignment? alignment;
+
+  /// Callback triggered when the image is tapped.
+  final VoidCallback? onTap;
+
+  /// Margin around the image container.
+  final EdgeInsetsGeometry? margin;
+
+  /// Padding inside the image container.
+  final EdgeInsetsGeometry? padding;
+
+  /// Border radius of the image container.
+  final BorderRadius? borderRadius;
+
+  /// Border of the image container.
+  final BoxBorder? border;
+
+  /// Shadow effects applied to the image container.
+  final List<BoxShadow>? boxShadow;
+
+  /// Shape of the image container (e.g., rectangle or circle).
+  final BoxShape shape;
+
+  /// Custom widget displayed as a placeholder while loading.
+  final Widget? placeholderWidget;
+
+  /// Custom widget displayed when an error occurs.
+  final Widget? errorWidget;
+
+  /// Duration of the fade-in animation for the image.
+  final Duration fadeDuration;
+
+  /// Whether zoom functionality is enabled for the image.
+  final bool enableZoom;
+
+  /// Custom HTTP headers for network images.
+  final Map<String, String>? httpHeaders;
+
+  /// Maximum number of retry attempts for failed network requests.
+  final int maxRetryAttempts;
+
+  /// Optional color to tint SVG images (both asset and network).
+  /// When set, SVG fill/stroke is replaced with this color (BlendMode.srcIn).
+  final Color? svgColor;
+
+  /// Optional custom color filter for SVG images (overrides [svgColor] if both set).
+  final ColorFilter? svgColorFilter;
+
+  /// When true, tapping the image opens a fullscreen dialog with a close
+  /// button (top-right) and pinch-to-zoom. Ignored if [onTap] is provided.
+  final bool enableFullscreen;
+
+  /// Creates an image view widget with various customization options.
+  const AnyImageView({
+    Key? key,
+    this.imagePath,
+    this.height,
+    this.width,
+    this.fit,
+    this.alignment,
+    this.onTap,
+    this.margin,
+    this.padding,
+    this.borderRadius,
+    this.border,
+    this.boxShadow,
+    this.shape = BoxShape.rectangle,
+    this.placeholderWidget,
+    this.errorWidget,
+    this.fadeDuration = const Duration(milliseconds: 400),
+    this.enableZoom = false,
+    this.httpHeaders,
+    this.maxRetryAttempts = 3,
+    this.svgColor,
+    this.svgColorFilter,
+    this.enableFullscreen = false,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // Builds the image content with optional zoom functionality.
+    Widget imageContent = AnimatedSwitcher(
+      duration: fadeDuration,
+      child: _buildImage(),
+    );
+
+    // Wraps the image content with InteractiveViewer if zoom is enabled.
+    if (enableZoom) {
+      imageContent = InteractiveViewer(
+        minScale: 1.0,
+        maxScale: 4.0,
+        child: imageContent,
+      );
+    }
+
+    // If the user did not supply their own onTap and enableFullscreen is on,
+    // tapping opens the fullscreen dialog. An explicit onTap always wins.
+    final VoidCallback? effectiveOnTap = onTap ??
+        (enableFullscreen ? () => _openFullscreen(context) : null);
+
+    // Returns the image wrapped in a container with customizable properties.
+    return InkWell(
+      focusColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      onTap: effectiveOnTap,
+      child: Container(
+        alignment: alignment,
+        margin: margin,
+        padding: padding,
+        height: height,
+        width: width,
+        decoration: BoxDecoration(
+          border: border,
+          boxShadow: boxShadow,
+          shape: shape,
+          borderRadius: shape == BoxShape.rectangle ? borderRadius : null,
+        ),
+        child: shape == BoxShape.circle
+            ? ClipOval(child: imageContent)
+            : ClipRRect(
+                borderRadius: borderRadius ?? BorderRadius.zero,
+                child: imageContent,
+              ),
+      ),
+    );
+  }
+
+  /// Opens a fullscreen dialog with a zoomable view of [imagePath] and a
+  /// close button anchored at the top-right corner.
+  void _openFullscreen(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      barrierColor: Colors.black,
+      useSafeArea: false,
+      builder: (_) => _FullscreenImageDialog(
+        imagePath: imagePath,
+        httpHeaders: httpHeaders,
+        placeholderWidget: placeholderWidget,
+        errorWidget: errorWidget,
+        svgColor: svgColor,
+        svgColorFilter: svgColorFilter,
+        fadeDuration: fadeDuration,
+      ),
+    );
+  }
+
+  /// Effective color filter for SVG: [svgColorFilter] if set, else from [svgColor].
+  ColorFilter? get _effectiveSvgColorFilter {
+    if (svgColorFilter != null) return svgColorFilter;
+    if (svgColor != null) {
+      return ColorFilter.mode(svgColor!, BlendMode.srcIn);
+    }
+    return null;
+  }
+
+  /// True if the path is a network URL pointing to an SVG file.
+  static bool _isSvgUrl(String path) {
+    final lower = path.toLowerCase();
+    return (lower.startsWith('http://') || lower.startsWith('https://')) &&
+        (lower.endsWith('.svg') || lower.contains('.svg?'));
+  }
+
+  /// True if the path is a network URL pointing to an AVIF file.
+  static bool _isAvifUrl(String path) {
+    final lower = path.toLowerCase();
+    return (lower.startsWith('http://') || lower.startsWith('https://')) &&
+        (lower.endsWith('.avif') || lower.contains('.avif?'));
+  }
+
+  /// Builds the image widget based on the provided `imagePath`.
+  Widget _buildImage() {
+    // Fallback widget displayed when an error occurs or the image path is invalid.
+    Widget errorFallback() =>
+        errorWidget ??
+        Container(
+          height: height,
+          width: width,
+          padding: const EdgeInsets.all(20),
+          color: Colors.grey[200],
+          child: FittedBox(
+            fit: BoxFit.contain,
+            child: Icon(
+              Icons.broken_image,
+              color: Colors.grey[400],
+            ),
+          ),
+        );
+
+    // Returns the fallback widget if the image path is null.
+    if (imagePath == null) {
+      return errorFallback();
+    }
+
+    // Handles image loading for XFile type.
+    if (imagePath is XFile) {
+      final xFile = imagePath as XFile;
+      final path = xFile.path;
+      if (path.isEmpty) {
+        return errorFallback();
+      }
+      return _buildFileImage(path, errorFallback);
+    }
+    // Handles image loading for String type.
+    else if (imagePath is String) {
+      final path = imagePath as String;
+      if (path.isEmpty) {
+        return errorFallback();
+      }
+      return _buildStringImage(path, errorFallback);
+    }
+
+    // Returns the fallback widget for unsupported image types.
+    return errorFallback();
+  }
+
+  /// Builds an image widget for a local file path.
+  Widget _buildFileImage(String path, Widget Function() errorFallback) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      return errorFallback();
+    }
+
+    // Uses FutureBuilder to check file existence and display the image.
+    return FutureBuilder<bool>(
+      future: file.exists(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _buildLoadingWidget();
+        }
+
+        if (snapshot.hasError || !(snapshot.data ?? false)) {
+          return errorFallback();
+        }
+
+        if (path.toLowerCase().endsWith('.avif')) {
+          return AvifImage.file(
+            file,
+            height: height,
+            width: width,
+            fit: fit ?? BoxFit.cover,
+            errorBuilder: (_, __, ___) => errorFallback(),
+          );
+        }
+
+        // Displays the image with fade-in animation.
+        return Image.file(
+          file,
+          height: height,
+          width: width,
+          fit: fit ?? BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => errorFallback(),
+        );
+      },
+    );
+  }
+
+  /// Builds an image widget for a string path, determining the type of image.
+  Widget _buildStringImage(String path, Widget Function() errorFallback) {
+    switch (path.imageType) {
+      case ImageType.svg:
+        // Handles SVG image loading (local assets) with parse validation to avoid crashes.
+        return _SafeSvgLoader(
+          path: path,
+          isNetwork: false,
+          httpHeaders: httpHeaders,
+          height: height,
+          width: width,
+          fit: fit ?? BoxFit.contain,
+          colorFilter: _effectiveSvgColorFilter,
+          loadingWidget: _buildLoadingWidget(),
+          errorFallback: errorFallback,
+        );
+      case ImageType.avif:
+        // Handles AVIF image loading (local assets).
+        return AvifImage.asset(
+          path,
+          height: height,
+          width: width,
+          fit: fit ?? BoxFit.cover,
+          errorBuilder: (_, __, ___) => errorFallback(),
+        );
+      case ImageType.json:
+      case ImageType.zip:
+        // Handles Lottie animation loading (local assets only).
+        return Lottie.asset(
+          path,
+          height: height,
+          width: width,
+          fit: fit ?? BoxFit.contain,
+        );
+      case ImageType.network:
+        // Handles network SVG (URLs ending with .svg) with fetch + parse validation.
+        if (_isSvgUrl(path)) {
+          return _SafeSvgLoader(
+            path: path,
+            isNetwork: true,
+            httpHeaders: httpHeaders,
+            height: height,
+            width: width,
+            fit: fit ?? BoxFit.contain,
+            colorFilter: _effectiveSvgColorFilter,
+            loadingWidget: _buildLoadingWidget(),
+            errorFallback: errorFallback,
+          );
+        }
+        // Handles network AVIF (URLs ending with .avif) via cached AVIF image.
+        if (_isAvifUrl(path)) {
+          return CachedNetworkAvifImage(
+            path,
+            height: height,
+            width: width,
+            fit: fit ?? BoxFit.cover,
+            headers: httpHeaders,
+            errorBuilder: (_, __, ___) => errorFallback(),
+          );
+        }
+        // Handles network image loading without caching for best resolution.
+        return CachedNetworkImage(
+          height: height,
+          width: width,
+          fit: fit ?? BoxFit.cover,
+          imageUrl: path,
+          placeholder: (_, __) => _buildLoadingWidget(),
+          errorWidget: (_, __, ___) => errorFallback(),
+          fadeInDuration: fadeDuration,
+          fadeOutDuration: const Duration(milliseconds: 300),
+          httpHeaders: httpHeaders,
+          // Disable caching for best resolution
+          memCacheHeight: null,
+          memCacheWidth: null,
+          maxHeightDiskCache: null,
+          maxWidthDiskCache: null,
+          useOldImageOnUrlChange: false,
+          filterQuality: FilterQuality.high,
+          errorListener: (error) {
+            debugPrint('CachedNetworkImage Error: $error');
+          },
+        );
+      case ImageType.file:
+        // Handles local file image loading.
+        return _buildFileImage(path, errorFallback);
+      default:
+        // Handles asset image loading with fade-in animation.
+        return Image.asset(
+          path,
+          height: height,
+          width: width,
+          fit: fit ?? BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => errorFallback(),
+        );
+    }
+  }
+
+  /// Builds a loading widget, typically a shimmer effect.
+  Widget _buildLoadingWidget() {
+    return placeholderWidget ??
+        Shimmer(
+          height: height,
+          width: width,
+          borderRadius: borderRadius,
+        );
+  }
+}
+
+/// Fullscreen dialog used by [AnyImageView.enableFullscreen]. Renders the image
+/// inside an [InteractiveViewer] for pinch-to-zoom (and pan) on a black backdrop,
+/// with a close button anchored at the top-right corner (respecting safe area).
+///
+/// The viewer is placed above all clipping so that pinch-zoomed and panned
+/// pixels are not cropped. Double-tap toggles between fit and a 2.5x zoom
+/// centered on the tap point.
+class _FullscreenImageDialog extends StatefulWidget {
+  const _FullscreenImageDialog({
+    required this.imagePath,
+    required this.httpHeaders,
+    required this.placeholderWidget,
+    required this.errorWidget,
+    required this.svgColor,
+    required this.svgColorFilter,
+    required this.fadeDuration,
+  });
+
+  final Object? imagePath;
+  final Map<String, String>? httpHeaders;
+  final Widget? placeholderWidget;
+  final Widget? errorWidget;
+  final Color? svgColor;
+  final ColorFilter? svgColorFilter;
+  final Duration fadeDuration;
+
+  @override
+  State<_FullscreenImageDialog> createState() => _FullscreenImageDialogState();
+}
+
+class _FullscreenImageDialogState extends State<_FullscreenImageDialog> {
+  final TransformationController _transformController =
+      TransformationController();
+  TapDownDetails? _doubleTapDetails;
+
+  static const double _minScale = 1.0;
+  static const double _maxScale = 5.0;
+  static const double _doubleTapScale = 2.5;
+
+  @override
+  void dispose() {
+    _transformController.dispose();
+    super.dispose();
+  }
+
+  void _handleDoubleTap() {
+    if (_transformController.value != Matrix4.identity()) {
+      _transformController.value = Matrix4.identity();
+      return;
+    }
+    final position = _doubleTapDetails?.localPosition;
+    if (position == null) return;
+    final double s = _doubleTapScale;
+    final double dx = -position.dx * (s - 1);
+    final double dy = -position.dy * (s - 1);
+    _transformController.value = Matrix4(
+      s, 0, 0, 0,
+      0, s, 0, 0,
+      0, 0, 1, 0,
+      dx, dy, 0, 1,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: EdgeInsets.zero,
+      backgroundColor: Colors.black,
+      elevation: 0,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              onDoubleTapDown: (details) => _doubleTapDetails = details,
+              onDoubleTap: _handleDoubleTap,
+              child: InteractiveViewer(
+                transformationController: _transformController,
+                minScale: _minScale,
+                maxScale: _maxScale,
+                panEnabled: true,
+                scaleEnabled: true,
+                clipBehavior: Clip.none,
+                child: AnyImageView(
+                  imagePath: widget.imagePath,
+                  fit: BoxFit.contain,
+                  // Zoom is handled by the outer InteractiveViewer; disabling
+                  // here avoids nested zoom handlers (which conflict).
+                  enableZoom: false,
+                  httpHeaders: widget.httpHeaders,
+                  placeholderWidget: widget.placeholderWidget,
+                  errorWidget: widget.errorWidget,
+                  svgColor: widget.svgColor,
+                  svgColorFilter: widget.svgColorFilter,
+                  fadeDuration: widget.fadeDuration,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Material(
+                  color: Colors.black54,
+                  shape: const CircleBorder(),
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    tooltip: 'Close',
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Loads and validates SVG (asset or network), then shows SvgPicture or error fallback.
+class _SafeSvgLoader extends StatefulWidget {
+  const _SafeSvgLoader({
+    required this.path,
+    required this.isNetwork,
+    required this.httpHeaders,
+    required this.height,
+    required this.width,
+    required this.fit,
+    required this.colorFilter,
+    required this.loadingWidget,
+    required this.errorFallback,
+  });
+
+  final String path;
+  final bool isNetwork;
+  final Map<String, String>? httpHeaders;
+  final double? height;
+  final double? width;
+  final BoxFit fit;
+  final ColorFilter? colorFilter;
+  final Widget loadingWidget;
+  final Widget Function() errorFallback;
+
+  @override
+  State<_SafeSvgLoader> createState() => _SafeSvgLoaderState();
+}
+
+class _SafeSvgLoaderState extends State<_SafeSvgLoader> {
+  late final Future<String?> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = widget.isNetwork
+        ? _loadNetworkSvg(widget.path, widget.httpHeaders)
+        : _loadAssetSvg(widget.path);
+  }
+
+  static Future<String?> _loadAssetSvg(String path) async {
+    try {
+      final String svg = await rootBundle.loadString(path);
+      return svg.isNotEmpty ? svg : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<String?> _loadNetworkSvg(
+    String url,
+    Map<String, String>? headers,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers ?? {},
+      );
+      if (response.statusCode != 200) return null;
+      final String body = response.body;
+      return body.isNotEmpty ? body : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String?>(
+      future: _future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return widget.loadingWidget;
+        }
+        final String? svg = snapshot.data;
+        if (snapshot.hasError || svg == null || svg.isEmpty) {
+          return widget.errorFallback();
+        }
+        try {
+          return SvgPicture.string(
+            svg,
+            height: widget.height,
+            width: widget.width,
+            fit: widget.fit,
+            colorFilter: widget.colorFilter,
+            placeholderBuilder: (_) => widget.loadingWidget,
+          );
+        } catch (_) {
+          return widget.errorFallback();
+        }
+      },
+    );
+  }
+}
+
+/// Supported image types for [AnyImageView].
+enum ImageType {
+  /// Scalable Vector Graphics format.
+  svg,
+
+  /// Portable Network Graphics format.
+  png,
+
+  /// JPEG format (alternative extension).
+  jpg,
+
+  /// JPEG format.
+  jpeg,
+
+  /// Tagged Image File Format.
+  tiff,
+
+  /// Raw image format.
+  raw,
+
+  /// WebP image format.
+  webp,
+
+  /// Graphics Interchange Format.
+  gif,
+
+  /// High Efficiency Image Container format.
+  heic,
+
+  /// High Efficiency Image File format.
+  heif,
+
+  /// Bitmap image format.
+  bmp,
+
+  /// AV1 Image File Format.
+  avif,
+
+  /// Icon file format.
+  ico,
+
+  /// OpenEXR format.
+  exr,
+
+  /// High Dynamic Range format.
+  hdr,
+
+  /// Network URL (HTTP/HTTPS).
+  network,
+
+  /// Lottie JSON animation.
+  json,
+
+  /// Lottie ZIP animation.
+  zip,
+
+  /// Local file path.
+  file,
+}
+
+/// Extension to detect image type from a string path.
+extension ImageTypeExtension on String {
+  /// Returns the [ImageType] based on the string content.
+  ///
+  /// Checks URL protocol first, then file path prefix, then file extension.
+  ImageType get imageType {
+    // Check for network URLs FIRST before checking extensions
+    if (startsWith('http://') || startsWith('https://')) {
+      return ImageType.network;
+    }
+    // Check for file paths
+    if (startsWith('file://') || startsWith('/')) return ImageType.file;
+    // Check for specific file extensions (for local assets)
+    if (endsWith('.svg')) return ImageType.svg;
+    if (endsWith('.avif')) return ImageType.avif;
+    if (endsWith('.json')) return ImageType.json;
+    if (endsWith('.zip')) return ImageType.zip;
+    if (endsWith('.webp')) return ImageType.webp;
+    if (endsWith('.gif')) return ImageType.gif;
+    if (endsWith('.jpg') || endsWith('.jpeg')) return ImageType.jpeg;
+    if (endsWith('.tiff')) return ImageType.tiff;
+    if (endsWith('.raw')) return ImageType.raw;
+    if (endsWith('.heic')) return ImageType.heic;
+    if (endsWith('.heif')) return ImageType.heif;
+    if (endsWith('.bmp')) return ImageType.bmp;
+    if (endsWith('.ico')) return ImageType.ico;
+    if (endsWith('.exr')) return ImageType.exr;
+    if (endsWith('.hdr')) return ImageType.hdr;
+    // Default to PNG for asset paths
+    return ImageType.png;
+  }
+}
+
+/// A widget that creates a shimmer effect, often used as a loading placeholder.
+class Shimmer extends StatefulWidget {
+  /// The height of the shimmer effect.
+  final double? height;
+
+  /// The width of the shimmer effect.
+  final double? width;
+
+  /// The border radius of the shimmer effect.
+  final BorderRadius? borderRadius;
+
+  /// Creates a shimmer effect widget.
+  const Shimmer({
+    Key? key,
+    this.height,
+    this.width,
+    this.borderRadius,
+  }) : super(key: key);
+
+  @override
+  State<Shimmer> createState() => _ShimmerState();
+}
+
+class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
+  /// Animation controller for the shimmer effect.
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initializes the animation controller and starts the animation loop.
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    // Disposes the animation controller to free resources.
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Builds the shimmer effect using an animated gradient.
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (_, __) {
+        return ShaderMask(
+          shaderCallback: (rect) {
+            return LinearGradient(
+              colors: [
+                Colors.grey[300]!,
+                Colors.grey[100]!,
+                Colors.grey[300]!,
+              ],
+              stops: [
+                (_controller.value - 0.2).clamp(0.0, 1.0),
+                _controller.value,
+                (_controller.value + 0.2).clamp(0.0, 1.0),
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ).createShader(rect);
+          },
+          child: Container(
+            height: widget.height,
+            width: widget.width,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: widget.borderRadius ?? BorderRadius.zero,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withAlpha((0.15 * 255).toInt()),
+                  blurRadius: 5,
+                ),
+              ],
+            ),
+          ),
+          blendMode: BlendMode.srcATop,
+        );
+      },
+    );
+  }
+}
