@@ -153,8 +153,8 @@ class AnyImageView extends StatelessWidget {
 
     // If the user did not supply their own onTap and enableFullscreen is on,
     // tapping opens the fullscreen dialog. An explicit onTap always wins.
-    final VoidCallback? effectiveOnTap = onTap ??
-        (enableFullscreen ? () => _openFullscreen(context) : null);
+    final VoidCallback? effectiveOnTap =
+        onTap ?? (enableFullscreen ? () => _openFullscreen(context) : null);
 
     // Returns the image wrapped in a container with customizable properties.
     return InkWell(
@@ -478,10 +478,22 @@ class _FullscreenImageDialogState extends State<_FullscreenImageDialog> {
     final double dx = -position.dx * (s - 1);
     final double dy = -position.dy * (s - 1);
     _transformController.value = Matrix4(
-      s, 0, 0, 0,
-      0, s, 0, 0,
-      0, 0, 1, 0,
-      dx, dy, 0, 1,
+      s,
+      0,
+      0,
+      0,
+      0,
+      s,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      dx,
+      dy,
+      0,
+      1,
     );
   }
 

@@ -109,7 +109,8 @@ void main() {
       test('https URL ending in .avif is network (not avif asset)', () {
         expect('https://example.com/photo.avif'.imageType, ImageType.network);
       });
-      test('https URL with .avif and query string returns ImageType.network', () {
+      test('https URL with .avif and query string returns ImageType.network',
+          () {
         expect(
           'https://cdn.example.com/photo.avif?token=abc'.imageType,
           ImageType.network,
@@ -154,7 +155,8 @@ void main() {
       expect(find.byType(CachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('network AVIF URL builds CachedNetworkAvifImage', (tester) async {
+    testWidgets('network AVIF URL builds CachedNetworkAvifImage',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -170,7 +172,9 @@ void main() {
       expect(find.byType(CachedNetworkAvifImage), findsOneWidget);
     });
 
-    testWidgets('network AVIF URL with query string builds CachedNetworkAvifImage', (tester) async {
+    testWidgets(
+        'network AVIF URL with query string builds CachedNetworkAvifImage',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -186,7 +190,8 @@ void main() {
       expect(find.byType(CachedNetworkAvifImage), findsOneWidget);
     });
 
-    testWidgets('null imagePath shows error fallback (broken image)', (tester) async {
+    testWidgets('null imagePath shows error fallback (broken image)',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -210,7 +215,9 @@ void main() {
       expect(find.byIcon(Icons.broken_image), findsOneWidget);
     });
 
-    testWidgets('asset SVG path shows loading then SvgPicture or error fallback', (tester) async {
+    testWidgets(
+        'asset SVG path shows loading then SvgPicture or error fallback',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
