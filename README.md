@@ -13,7 +13,7 @@
 
 ```yaml
 dependencies:
-  any_image_view: ^2.2.0
+  any_image_view: ^2.3.0
 ```
 
 ### Android NDK version
