@@ -55,6 +55,29 @@ void main() {
       test('.avif returns ImageType.avif', () {
         expect('assets/images/photo.avif'.imageType, ImageType.avif);
       });
+      test('uppercase .AVIF returns ImageType.avif', () {
+        expect('assets/images/photo.AVIF'.imageType, ImageType.avif);
+        expect('assets/images/photo.Avif'.imageType, ImageType.avif);
+      });
+      test('.avif with query string returns ImageType.avif', () {
+        expect('assets/images/photo.avif?v=2'.imageType, ImageType.avif);
+      });
+      test('.avif with fragment returns ImageType.avif', () {
+        expect('assets/images/photo.avif#frame1'.imageType, ImageType.avif);
+      });
+      test('uppercase .SVG/.JSON/.PNG are detected', () {
+        expect('assets/icons/logo.SVG'.imageType, ImageType.svg);
+        expect('assets/lottie/anim.JSON'.imageType, ImageType.json);
+        expect('assets/images/photo.JPG'.imageType, ImageType.jpeg);
+      });
+      test('.tif is detected as tiff', () {
+        expect('assets/images/scan.tif'.imageType, ImageType.tiff);
+      });
+      test('dot in a directory segment does not confuse detection', () {
+        // The only dot lives in a folder name, so there is no real extension
+        // and the path must fall through to the PNG asset default.
+        expect('assets/v1.2/photo'.imageType, ImageType.png);
+      });
       test('.png returns ImageType.png', () {
         expect('assets/images/photo.png'.imageType, ImageType.png);
       });

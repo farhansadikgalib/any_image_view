@@ -43,3 +43,21 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Claude Code — local AI assistant instructions and settings
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+.claude*/
+.mcp.json
+
+# Git internals / helper files
+*.orig
+*.rej
+*.patch
+*.bak
+
+# Generated per-platform build scaffolding. These contain absolute paths into
+# the local pub cache, so they churn on every dependency change and differ
+# between machines.
+**/ephemeral/

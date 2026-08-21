@@ -13,7 +13,7 @@
 
 ```yaml
 dependencies:
-  any_image_view: ^2.3.0
+  any_image_view: ^2.3.1
 ```
 
 ### Android NDK version
@@ -44,6 +44,68 @@ android {
 Using `flutter.ndkVersion` rather than a hardcoded value means it always tracks
 your own Flutter SDK — it never goes stale and pins no dependency, so it won't
 conflict with other packages.
+
+### Android build fails: `Redeclaration: class FlutterAvifPlugin`
+
+If your Android build fails with:
+
+```
+e: .../flutter_avif_android-3.1.0/.../FlutterAvifPlugin.kt:12:7 Redeclaration:
+class FlutterAvifPlugin : FlutterPlugin, MethodChannel.MethodCallHandler
+class FlutterAvifPlugin : Any, FlutterPlugin, MethodChannel.MethodCallHandler
+
+> Execution failed for task ':flutter_avif_android:compileDebugKotlin'.
+```
+
+this is an upstream packaging bug in `flutter_avif_android` (3.1.0, the current
+release), not in this package. That plugin ships the **same class twice** — once
+as `src/main/java/.../FlutterAvifPlugin.java` and once as
+`src/main/kotlin/.../FlutterAvifPlugin.kt` — and both declare
+`com.teknorota.flutter_avif.FlutterAvifPlugin`.
+
+Older AGP silently ignored the stray Java file. AGP 8.9+ compiles both source
+sets, so the two declarations collide. Nothing you wrote is wrong, and no
+version of `any_image_view` can avoid it, because the duplicate lives inside the
+transitive plugin.
+
+Until upstream removes the duplicate file, add this to your app-level
+`android/build.gradle.kts` (the **root** one, next to `settings.gradle.kts` —
+not `app/build.gradle.kts`):
+
+```kotlin
+subprojects {
+    if (project.name == "flutter_avif_android") {
+        project.plugins.withId("com.android.library") {
+            project.extensions.configure<com.android.build.gradle.LibraryExtension>("android") {
+                sourceSets.getByName("main") {
+                    java.setSrcDirs(listOf("src/main/kotlin"))
+                }
+            }
+        }
+    }
+}
+```
+
+For the Groovy DSL (`android/build.gradle`):
+
+```groovy
+subprojects {
+    if (project.name == 'flutter_avif_android') {
+        project.plugins.withId('com.android.library') {
+            project.android.sourceSets.main.java.srcDirs = ['src/main/kotlin']
+        }
+    }
+}
+```
+
+This keeps the Kotlin class (the one `pluginClass:` actually registers) and drops
+the redundant Java copy. It is behaviour-preserving: both classes are identical
+`getPlatformVersion` stubs, and no AVIF decoding goes through them — that runs
+through the plugin's native Rust library. Remove the block once
+`flutter_avif_android` ships without the duplicate file.
+
+A working reference copy lives in this repo at
+[`example/android/build.gradle.kts`](example/android/build.gradle.kts).
 
 ## Usage
 

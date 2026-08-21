@@ -213,19 +213,23 @@ class AnyImageView extends StatelessWidget {
     return null;
   }
 
-  /// True if the path is a network URL pointing to an SVG file.
-  static bool _isSvgUrl(String path) {
+  /// True if [path] is an HTTP(S) URL.
+  static bool _isHttpUrl(String path) {
     final lower = path.toLowerCase();
-    return (lower.startsWith('http://') || lower.startsWith('https://')) &&
-        (lower.endsWith('.svg') || lower.contains('.svg?'));
+    return lower.startsWith('http://') || lower.startsWith('https://');
   }
 
+  /// True if the path is a network URL pointing to an SVG file.
+  ///
+  /// Ignores query strings and fragments, so `icon.svg?v=2` still matches.
+  static bool _isSvgUrl(String path) =>
+      _isHttpUrl(path) && _extensionOf(path) == 'svg';
+
   /// True if the path is a network URL pointing to an AVIF file.
-  static bool _isAvifUrl(String path) {
-    final lower = path.toLowerCase();
-    return (lower.startsWith('http://') || lower.startsWith('https://')) &&
-        (lower.endsWith('.avif') || lower.contains('.avif?'));
-  }
+  ///
+  /// Ignores query strings and fragments, so `photo.avif?w=800` still matches.
+  static bool _isAvifUrl(String path) =>
+      _isHttpUrl(path) && _extensionOf(path) == 'avif';
 
   /// Builds the image widget based on the provided `imagePath`.
   Widget _buildImage() {
@@ -292,12 +296,19 @@ class AnyImageView extends StatelessWidget {
           return errorFallback();
         }
 
-        if (path.toLowerCase().endsWith('.avif')) {
+        if (_extensionOf(path) == 'avif') {
           return AvifImage.file(
             file,
             height: height,
             width: width,
             fit: fit ?? BoxFit.cover,
+            // AvifImage defaults to FilterQuality.low, which visibly degrades
+            // scaled stills; match the quality used for other formats.
+            filterQuality: FilterQuality.high,
+            // Keep the previous frame while a new one decodes so animated AVIF
+            // (image sequences) does not flash the placeholder between frames.
+            gaplessPlayback: true,
+            frameBuilder: _avifFrameBuilder,
             errorBuilder: (_, __, ___) => errorFallback(),
           );
         }
@@ -331,12 +342,16 @@ class AnyImageView extends StatelessWidget {
           errorFallback: errorFallback,
         );
       case ImageType.avif:
-        // Handles AVIF image loading (local assets).
+        // Handles AVIF image loading (local assets), including animated AVIF
+        // image sequences (`ftypavis`), which decode frame-by-frame.
         return AvifImage.asset(
           path,
           height: height,
           width: width,
           fit: fit ?? BoxFit.cover,
+          filterQuality: FilterQuality.high,
+          gaplessPlayback: true,
+          frameBuilder: _avifFrameBuilder,
           errorBuilder: (_, __, ___) => errorFallback(),
         );
       case ImageType.json:
@@ -371,6 +386,11 @@ class AnyImageView extends StatelessWidget {
             width: width,
             fit: fit ?? BoxFit.cover,
             headers: httpHeaders,
+            filterQuality: FilterQuality.high,
+            gaplessPlayback: true,
+            // Show the shimmer while the AVIF is downloaded and decoded,
+            // instead of leaving an empty box.
+            frameBuilder: _avifFrameBuilder,
             errorBuilder: (_, __, ___) => errorFallback(),
           );
         }
@@ -409,6 +429,29 @@ class AnyImageView extends StatelessWidget {
           errorBuilder: (context, error, stackTrace) => errorFallback(),
         );
     }
+  }
+
+  /// Frame builder shared by every AVIF code path.
+  ///
+  /// AVIF decoding is noticeably slower than PNG/JPEG (especially for image
+  /// sequences), so without this the widget renders an empty box until the
+  /// first frame is ready. Showing the placeholder until [frame] is non-null
+  /// keeps AVIF consistent with the other formats, then fades the image in.
+  Widget _avifFrameBuilder(
+    BuildContext context,
+    Widget child,
+    int? frame,
+    bool wasSynchronouslyLoaded,
+  ) {
+    if (wasSynchronouslyLoaded || frame != null) {
+      return AnimatedOpacity(
+        opacity: 1.0,
+        duration: fadeDuration,
+        curve: Curves.easeOut,
+        child: child,
+      );
+    }
+    return _buildLoadingWidget();
   }
 
   /// Builds a loading widget, typically a shimmer effect.
@@ -717,31 +760,73 @@ extension ImageTypeExtension on String {
   ///
   /// Checks URL protocol first, then file path prefix, then file extension.
   ImageType get imageType {
-    // Check for network URLs FIRST before checking extensions
+    // Check for network URLs FIRST before checking extensions.
     if (startsWith('http://') || startsWith('https://')) {
       return ImageType.network;
     }
-    // Check for file paths
+    // Check for file paths.
     if (startsWith('file://') || startsWith('/')) return ImageType.file;
-    // Check for specific file extensions (for local assets)
-    if (endsWith('.svg')) return ImageType.svg;
-    if (endsWith('.avif')) return ImageType.avif;
-    if (endsWith('.json')) return ImageType.json;
-    if (endsWith('.zip')) return ImageType.zip;
-    if (endsWith('.webp')) return ImageType.webp;
-    if (endsWith('.gif')) return ImageType.gif;
-    if (endsWith('.jpg') || endsWith('.jpeg')) return ImageType.jpeg;
-    if (endsWith('.tiff')) return ImageType.tiff;
-    if (endsWith('.raw')) return ImageType.raw;
-    if (endsWith('.heic')) return ImageType.heic;
-    if (endsWith('.heif')) return ImageType.heif;
-    if (endsWith('.bmp')) return ImageType.bmp;
-    if (endsWith('.ico')) return ImageType.ico;
-    if (endsWith('.exr')) return ImageType.exr;
-    if (endsWith('.hdr')) return ImageType.hdr;
-    // Default to PNG for asset paths
+
+    // Match on the lower-cased extension only, ignoring any query string or
+    // fragment (e.g. `pic.AVIF?v=2#frag`), so casing and URL suffixes on local
+    // paths do not defeat detection.
+    final ext = _extensionOf(this);
+    switch (ext) {
+      case 'svg':
+        return ImageType.svg;
+      case 'avif':
+        return ImageType.avif;
+      case 'json':
+        return ImageType.json;
+      case 'zip':
+        return ImageType.zip;
+      case 'webp':
+        return ImageType.webp;
+      case 'gif':
+        return ImageType.gif;
+      case 'jpg':
+      case 'jpeg':
+        return ImageType.jpeg;
+      case 'tif':
+      case 'tiff':
+        return ImageType.tiff;
+      case 'raw':
+        return ImageType.raw;
+      case 'heic':
+        return ImageType.heic;
+      case 'heif':
+        return ImageType.heif;
+      case 'bmp':
+        return ImageType.bmp;
+      case 'ico':
+        return ImageType.ico;
+      case 'exr':
+        return ImageType.exr;
+      case 'hdr':
+        return ImageType.hdr;
+    }
+    // Default to PNG for asset paths.
     return ImageType.png;
   }
+}
+
+/// Extracts the lower-cased file extension from [path], stripping any query
+/// string or fragment first.
+///
+/// Returns an empty string when the path has no extension. Used so that
+/// `photo.AVIF`, `photo.avif?v=2` and `photo.avif#x` are all detected as AVIF.
+String _extensionOf(String path) {
+  var value = path;
+  final queryIndex = value.indexOf('?');
+  if (queryIndex != -1) value = value.substring(0, queryIndex);
+  final fragmentIndex = value.indexOf('#');
+  if (fragmentIndex != -1) value = value.substring(0, fragmentIndex);
+
+  final slashIndex = value.lastIndexOf('/');
+  final dotIndex = value.lastIndexOf('.');
+  // No dot, or the dot belongs to a directory segment rather than the filename.
+  if (dotIndex == -1 || dotIndex < slashIndex) return '';
+  return value.substring(dotIndex + 1).toLowerCase();
 }
 
 /// A widget that creates a shimmer effect, often used as a loading placeholder.

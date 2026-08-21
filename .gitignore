@@ -27,3 +27,17 @@ migrate_working_dir/
 **/doc/api/
 .dart_tool/
 build/
+
+# Claude Code — local AI assistant instructions and settings
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+.claude*/
+.mcp.json
+
+# Git internals / helper files
+*.orig
+*.rej
+*.patch
+*.bak
+.git-rewrite/
