@@ -1,5 +1,5 @@
 name: any_image_view
-version: 2.3.1
+version: 2.3.2
 
 description: "A versatile Flutter image viewer supporting PNG, JPG, WebP, GIF, AVIF, TIFF, RAW, SVG, Lottie, XFile, and network images with best resolution — all in one seamless package."
 topics:
@@ -39,3 +39,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  plugin:
+    platforms:
+      android:
+        package: com.farhansadikgalib.any_image_view
+        pluginClass: AnyImageViewPlugin

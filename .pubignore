@@ -7,3 +7,22 @@ logs/
 # Claude Code instructions — internal contributor guide, not for pub.dev.
 CLAUDE.md
 .claude/
+
+# Build output and tool caches. `.pubignore` fully replaces `.gitignore` for
+# publishing, so these must be listed explicitly or they ship to pub.dev.
+build/
+.dart_tool/
+.gradle/
+**/build/
+**/.dart_tool/
+**/.gradle/
+
+# Generated per-platform scaffolding (absolute paths into the local pub cache).
+**/flutter/ephemeral/
+**/Flutter/ephemeral/
+
+# Local tooling state
+.flutter-plugins
+.flutter-plugins-dependencies
+.idea/
+*.iml

@@ -1,0 +1,193 @@
+group 'com.farhansadikgalib.any_image_view'
+version '1.0'
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.0'
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    if (project.android.hasProperty("namespace")) {
+        namespace = "com.farhansadikgalib.any_image_view"
+    }
+
+    compileSdkVersion 34
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    defaultConfig {
+        minSdkVersion 21
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Automatic NDK version alignment.
+//
+// Native plugins pulled in transitively (notably `jni`, via `path_provider`)
+// declare `ndkVersion flutter.ndkVersion`, while older `flutter create`
+// templates leave the app on the AGP default. Flutter then reports:
+//
+//   Your project is configured with Android NDK <x>, but the following
+//   plugin(s) depend on a different Android NDK version:
+//   - jni requires Android NDK 28.2.13676358
+//
+// We set the app's `ndkVersion` from the same source those plugins use -- the
+// `flutter` extension on the app -- so it tracks the host Flutter SDK exactly
+// and can never go stale.
+//
+// TIMING (measured, not assumed):
+//   * The app's root `build.gradle.kts` from `flutter create` contains
+//     `subprojects { project.evaluationDependsOn(":app") }`, which forces
+//     `:app` to evaluate FULLY before any plugin module is configured.
+//   * Flutter's own mismatch check captures the app's ndkVersion into a local
+//     inside `:app`'s afterEvaluate, then compares it once every plugin has
+//     evaluated.
+//
+// So by the time this file runs, `:app` is already EXECUTED: setting the value
+// here still corrects the NDK the build actually compiles against (verified:
+// app, jni and this module all resolve to the same version), but it lands
+// after Flutter captured its snapshot, so the warning text can still print.
+// Suppressing the message itself requires running during `:app` evaluation,
+// which is only reachable from the app's own Gradle files or an init script --
+// neither of which a pub package can contribute. See README.
+// ---------------------------------------------------------------------------
+
+/** Compares two dotted NDK version strings. Returns > 0 when `a` is newer than `b`. */
+static int compareNdkVersions(String a, String b) {
+    def pa = a.tokenize('.').collect { it.isInteger() ? it.toInteger() : 0 }
+    def pb = b.tokenize('.').collect { it.isInteger() ? it.toInteger() : 0 }
+    for (int i = 0; i < Math.max(pa.size(), pb.size()); i++) {
+        int va = i < pa.size() ? pa[i] : 0
+        int vb = i < pb.size() ? pb[i] : 0
+        if (va != vb) return va <=> vb
+    }
+    return 0
+}
+
+/** Reads the NDK version vended by the host Flutter SDK. */
+def flutterNdkVersion = { Project fromProject ->
+    def ext = fromProject.extensions.findByName("flutter")
+    if (ext == null) return null
+    try {
+        String v = ext.ndkVersion
+        return (v == null || v.isEmpty()) ? null : v
+    } catch (Exception ignored) {
+        return null // Older Flutter SDKs do not expose ndkVersion.
+    }
+}
+
+def applyNdkVersion = { Project target, String desired ->
+    def androidExt = target.extensions.findByName("android")
+    if (androidExt == null || desired == null) return
+
+    String current = null
+    try {
+        current = androidExt.ndkVersion
+    } catch (Exception ignored) {
+        return
+    }
+
+    // Only ever raise the version, so an app that pinned a NEWER NDK keeps it.
+    if (current == null || current.isEmpty() || compareNdkVersions(desired, current) > 0) {
+        androidExt.ndkVersion = desired
+        target.logger.info(
+            "any_image_view: set Android ndkVersion to ${desired} (from the host " +
+            "Flutter SDK) so it matches the transitive native plugins."
+        )
+    }
+}
+
+// Captured outside the closure: inside `allprojects { }` the implicit `project`
+// delegates to the project being iterated, not to this module.
+def thisModule = project
+def desiredNdk = flutterNdkVersion(thisModule)
+
+// Register for any app project that has NOT yet evaluated (some builds do not
+// force app-first evaluation), and fall back to setting it directly otherwise.
+rootProject.allprojects { Project candidate ->
+    if (candidate.path == thisModule.path) return
+
+    def resolve = {
+        String desired = desiredNdk ?: flutterNdkVersion(candidate)
+        if (desired != null) applyNdkVersion(candidate, desired)
+    }
+
+    if (candidate.state.executed) {
+        if (candidate.extensions.findByName("android") != null) resolve()
+    } else {
+        candidate.pluginManager.withPlugin("com.android.application") { resolve() }
+    }
+}
+
+// Keep this module's own NDK in step so it never appears in Flutter's
+// "plugin(s) depend on a different Android NDK version" list.
+afterEvaluate {
+    String desired = flutterNdkVersion(project)
+    if (desired != null) {
+        try {
+            android.ndkVersion = desired
+        } catch (Exception ignored) {
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Automatic workaround for the `flutter_avif_android` duplicate-class bug.
+//
+// flutter_avif_android 3.1.0 ships the SAME plugin class twice:
+//   src/main/java/com/teknorota/flutter_avif/FlutterAvifPlugin.java
+//   src/main/kotlin/com/teknorota/flutter_avif/FlutterAvifPlugin.kt
+// Both declare `com.teknorota.flutter_avif.FlutterAvifPlugin`. AGP 8.9+
+// compiles both source sets, so the Kotlin compiler fails with
+// "Redeclaration: class FlutterAvifPlugin".
+//
+// Every Flutter plugin is included as a sibling subproject of the same root
+// build, so from here we can reach `:flutter_avif_android` and drop the
+// redundant Java source directory before it is evaluated. This keeps the
+// Kotlin class -- the one `pluginClass:` actually registers -- and removes the
+// duplicate, so consumers of `any_image_view` need no manual Gradle changes.
+//
+// Both classes are identical `getPlatformVersion` stubs; no AVIF decoding runs
+// through them (that goes through the plugin's native library), so this is
+// behaviour-preserving.
+//
+// The block is a no-op once upstream removes the duplicate file, because the
+// Java directory it strips will no longer exist.
+// ---------------------------------------------------------------------------
+rootProject.subprojects { subproject ->
+    if (subproject.name == "flutter_avif_android") {
+        subproject.plugins.withId("com.android.library") {
+            def javaDir = new File(subproject.projectDir, "src/main/java")
+            def kotlinDir = new File(subproject.projectDir, "src/main/kotlin")
+            def dupJava = new File(javaDir, "com/teknorota/flutter_avif/FlutterAvifPlugin.java")
+            def dupKotlin = new File(kotlinDir, "com/teknorota/flutter_avif/FlutterAvifPlugin.kt")
+
+            // Only intervene when the duplicate genuinely exists, so a fixed
+            // upstream release is left completely untouched.
+            if (dupJava.exists() && dupKotlin.exists()) {
+                subproject.android.sourceSets.main.java.srcDirs = [kotlinDir.path]
+                subproject.logger.info(
+                    "any_image_view: dropped duplicate FlutterAvifPlugin.java from " +
+                    "flutter_avif_android (upstream ships the class in both Java and Kotlin)."
+                )
+            }
+        }
+    }
+}

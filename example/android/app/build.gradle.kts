@@ -8,9 +8,8 @@ plugins {
 android {
     namespace = "com.example.example"
     compileSdk = flutter.compileSdkVersion
-    // Track the Flutter SDK's default NDK (what `flutter create` now generates).
-    // This satisfies native plugins (e.g. `jni`, pulled in transitively via
-    // path_provider) without pinning a version that can go stale.
+    // Standard `flutter create` line: tracks the NDK shipped with the Flutter
+    // SDK, matching what native plugins such as `jni` declare.
     ndkVersion = flutter.ndkVersion
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

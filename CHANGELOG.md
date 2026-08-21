@@ -1,4 +1,7 @@
-## 2.3.1
+## 2.3.2
+- Added: **automatic Android build fixes.** The package now ships a minimal Android module (it registers no platform channels) whose `build.gradle` repairs two build-time problems, so consumers no longer edit Gradle by hand:
+  - **`Redeclaration: class FlutterAvifPlugin`** — `flutter_avif_android` 3.1.0 ships the same plugin class as both `FlutterAvifPlugin.java` and `FlutterAvifPlugin.kt`; AGP 8.9+ compiles both source sets and the build fails. The redundant Java source directory is now stripped from that module automatically, keeping the Kotlin class that `pluginClass:` registers. Applied only when the duplicate is actually present, so a fixed upstream release is untouched.
+  - **NDK version mismatch** — the app's `ndkVersion` is raised to the one vended by the host Flutter SDK (never lowered), matching what transitive native plugins such as `jni` require. Verified via Gradle probe that the app, `jni` and this module all resolve to the same NDK.
 - Fixed: **AVIF format detection** — paths were matched with case-sensitive `endsWith`, so `photo.AVIF`, `photo.avif?v=2` and `photo.avif#frag` fell through to the PNG default and rendered as a broken image. Detection now strips any query string/fragment and lower-cases the extension. The same fix applies to every other format (SVG, JSON, PNG, JPEG, …), and `.tif` is now recognised alongside `.tiff`.
 - Fixed: **AVIF render quality** — all three AVIF paths (asset, file, network) inherited `AvifImage`'s `FilterQuality.low` default, which visibly degraded scaled images. They now use `FilterQuality.high`, matching the other formats.
 - Fixed: **Animated AVIF flicker** — AVIF image sequences (`ftypavis`) now render with `gaplessPlayback: true`, so the previous frame is held while the next decodes instead of flashing the placeholder between frames.
@@ -6,7 +9,8 @@
 - Dependencies: raised `lottie` to `^3.5.1` (from `^3.3.3`) and `cross_file` to `^0.3.5+4` (from `^0.3.5+2`). The lottie bump is additive — it picks up text animator range selectors, `ValueDelegate.path`, correct `alignment` handling for cropped fits such as `BoxFit.cover`, and a render-cache crop fix. All other direct dependencies were already at their latest release.
 - Example: upgraded the app's transitive packages to their latest resolvable versions (`image_picker` 1.2.3, `xml` 7.0.1, `sqflite` 2.4.3, `jni` 1.0.3, `archive` 4.1.0, `package_config` 3.0.0, `path_provider` 2.1.6, `flutter_cache_manager` 3.4.2, `uuid` 4.6.0, `vector_graphics_compiler` 1.3.0, and others).
 - Example: bumped the Kotlin Gradle plugin to 2.2.20, clearing the "Flutter support for your project's Kotlin version (2.1.0) will soon be dropped" build warning.
-- Docs: documented the `Redeclaration: class FlutterAvifPlugin` Android build failure. `flutter_avif_android` 3.1.0 ships the same plugin class as both `FlutterAvifPlugin.java` and `FlutterAvifPlugin.kt`; AGP 8.9+ compiles both source sets and the declarations collide. This is an upstream packaging bug that no version of `any_image_view` can work around from Dart, so the README now carries a copy-paste Gradle fix (Kotlin and Groovy DSL), mirrored in the example app.
+- Fixed: **published archive size** — `.pubignore` fully replaces `.gitignore` when publishing, and it did not exclude build output, so `example/build/` artifacts (including a 53 MB `.dill` cache) were shipped to pub.dev. Build and tool directories are now excluded: the archive drops from 21 MB to 2 MB.
+- Docs: replaced the two manual Android workaround sections with a short "Android setup: none required" note.
 
 ---
 
