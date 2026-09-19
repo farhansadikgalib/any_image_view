@@ -1,16 +1,21 @@
-# example
+# any_image_view example
 
-A new Flutter project.
+A gallery that exercises every source `AnyImageView` supports: a disk-cached
+network image with fullscreen zoom, PNG and SVG assets, a tinted network SVG,
+AVIF from an asset and from the network, a Lottie animation, a circular
+avatar, a custom error widget, and an `XFile` picked from the gallery.
 
-## Getting Started
+```sh
+flutter run
+```
 
-This project is a starting point for a Flutter application.
+## Integration test
 
-A few resources to get you started if this is your first Flutter project:
+Drives the gallery on a real device or simulator, asserts what each tile
+rendered, opens the fullscreen viewer, checks the disk cache and saves
+screenshots to `screenshots/`:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```sh
+flutter drive --driver=test_driver/integration_test.dart \
+  --target=integration_test/app_test.dart -d <device id>
+```
