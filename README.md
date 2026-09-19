@@ -1,4 +1,4 @@
-# 🖼️ Any Image View
+# any_image_view
 
 [![Pub Version](https://img.shields.io/pub/v/any_image_view.svg)](https://pub.dev/packages/any_image_view)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -7,84 +7,97 @@
   <img src="https://raw.githubusercontent.com/farhansadikgalib/any_image_view/main/raw/banner.png" alt="Any Image View"/>
 </p>
 
-**One widget for all image types** — Network, Assets, SVG, Lottie, XFile with built-in shimmer loading & error handling.
+Show any image with one widget. Network, asset, file, `XFile`, SVG or Lottie:
+hand it to `AnyImageView` and it takes care of loading, caching, retries and
+errors. Zero dependencies.
 
-## Installation
+## Install
 
 ```yaml
 dependencies:
-  any_image_view: ^2.3.2
+  any_image_view: ^2.5.0
 ```
 
-### Android setup
-
-None required. `any_image_view` ships a small Android module that configures
-the build for you — your Gradle files stay untouched.
+```dart
+import 'package:any_image_view/any_image_view.dart';
+```
 
 ## Usage
 
 ```dart
-import 'package:any_image_view/any_image_view.dart';
-
-// Network
-AnyImageView(imagePath: 'https://example.com/image.jpg', height: 200, width: 200)
+// Network (cached on disk after the first load)
+AnyImageView(imagePath: 'https://example.com/photo.jpg', height: 200, width: 200)
 
 // Asset
-AnyImageView(imagePath: 'assets/image.png', height: 200, width: 200)
+AnyImageView(imagePath: 'assets/photo.png', height: 200, width: 200)
 
-// SVG (asset or network)
-AnyImageView(imagePath: 'assets/icon.svg', height: 40, width: 40)
-AnyImageView(imagePath: 'https://example.com/icon.svg', height: 40, width: 40, svgColor: Colors.blue)
+// SVG, asset or network, optionally tinted
+AnyImageView(imagePath: 'assets/icon.svg', height: 40, width: 40, svgColor: Colors.blue)
 
-// Lottie
-AnyImageView(imagePath: 'assets/animation.json', height: 100, width: 100)
+// Lottie, loops automatically
+AnyImageView(imagePath: 'assets/loader.json', height: 120, width: 120)
 
-// AVIF (asset, network, or file — animated AVIFs auto-play)
-AnyImageView(imagePath: 'assets/photo.avif', height: 200, width: 200)
-AnyImageView(imagePath: 'https://example.com/photo.avif', height: 200, width: 200)
+// Local file or image_picker result
+AnyImageView(imagePath: '/path/to/photo.jpg', height: 200, width: 200)
+AnyImageView(imagePath: pickedXFile, height: 200, width: 200)
 
-// XFile (Image Picker)
-AnyImageView(imagePath: xFile, height: 200, width: 200)
-
-// Circular Avatar
+// Circular avatar
 AnyImageView(imagePath: url, height: 80, width: 80, shape: BoxShape.circle)
 
-// With Options
+// Tap for a fullscreen viewer with pan, pinch and double-tap zoom
+AnyImageView(imagePath: url, height: 200, width: 200, enableFullscreen: true)
+
+// Styling and custom states
 AnyImageView(
   imagePath: url,
   height: 200,
-  width: 200,
+  width: 300,
   fit: BoxFit.cover,
-  borderRadius: BorderRadius.circular(12),
-  enableZoom: true,
-  placeholderWidget: CircularProgressIndicator(),
-  errorWidget: Icon(Icons.error),
+  borderRadius: BorderRadius.circular(16),
+  placeholderWidget: const CircularProgressIndicator(),
+  errorWidget: const Icon(Icons.broken_image),
 )
 ```
 
+## Supported formats
+
+| Type | Formats |
+|------|---------|
+| Raster | PNG, JPG, WebP, GIF, BMP, ICO |
+| Platform-decoded | AVIF, HEIC on Android 12+, iOS 16+, macOS 13+ and web |
+| Vector | SVG |
+| Animation | Lottie `.json`, `.zip`, `.lottie` |
+| Sources | Network URL, asset, file path, `file://` URI, `XFile`, `File` |
+
+The source is detected from the path. Matching is case-insensitive and
+ignores query strings and fragments.
+
 ## Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `imagePath` | `Object?` | URL, asset path, or XFile |
-| `height` / `width` | `double?` | Dimensions |
-| `fit` | `BoxFit?` | Image fit (default: cover) |
-| `shape` | `BoxShape` | rectangle or circle |
-| `borderRadius` | `BorderRadius?` | Rounded corners |
-| `enableZoom` | `bool` | Pinch-to-zoom (default: false) |
-| `placeholderWidget` | `Widget?` | Custom loader |
-| `errorWidget` | `Widget?` | Custom error |
-| `httpHeaders` | `Map?` | Auth headers for network/SVG |
-| `svgColor` | `Color?` | Tint color for SVG (asset & network) |
-| `svgColorFilter` | `ColorFilter?` | Custom color filter for SVG |
+| Parameter | Type | Default | Purpose |
+|-----------|------|---------|---------|
+| `imagePath` | `Object?` | | URL, asset path, file path, `XFile` or `File` |
+| `height`, `width` | `double?` | | Size |
+| `fit` | `BoxFit?` | `cover` | How the image fills the box (`contain` for SVG and Lottie) |
+| `alignment` | `Alignment?` | | Alignment inside the container |
+| `shape` | `BoxShape` | `rectangle` | `rectangle` or `circle` |
+| `borderRadius` | `BorderRadius?` | | Rounded corners |
+| `border` | `BoxBorder?` | | Border |
+| `boxShadow` | `List<BoxShadow>?` | | Shadows |
+| `margin`, `padding` | `EdgeInsetsGeometry?` | | Outer and inner spacing |
+| `placeholderWidget` | `Widget?` | shimmer | Shown while loading |
+| `errorWidget` | `Widget?` | broken-image icon | Shown on failure |
+| `fadeDuration` | `Duration` | 400 ms | Fade-in |
+| `maxRetryAttempts` | `int` | 3 | Retries after a failed network load; `0` disables |
+| `httpHeaders` | `Map<String, String>?` | | Headers for network requests |
+| `enableZoom` | `bool` | `false` | Inline pinch-to-zoom |
+| `enableFullscreen` | `bool` | `false` | Tap opens a fullscreen viewer |
+| `onTap` | `VoidCallback?` | | Custom tap handler |
+| `svgColor` | `Color?` | | Tint for SVGs |
+| `svgColorFilter` | `ColorFilter?` | | Custom SVG color filter |
 
-## Supported Formats
+## Screenshots
 
-PNG, JPG, WebP, GIF, AVIF, SVG, Lottie (.json), TIFF, RAW, HEIC, BMP, ICO
-
-## Platform Support
-
-✅ Android · ✅ iOS · ✅ Web · ✅ macOS · ✅ Windows · ✅ Linux
-
----
-
+| Network, PNG, SVG | AVIF | Lottie, avatar, error | Fullscreen |
+|:---:|:---:|:---:|:---:|
+| ![Network image, PNG and SVG](raw/screenshots/gallery.png) | ![AVIF asset and network AVIF](raw/screenshots/avif.png) | ![Lottie, circular avatar and error widget](raw/screenshots/lottie_avatar.png) | ![Fullscreen viewer](raw/screenshots/fullscreen.png) |
