@@ -1,11 +1,29 @@
 import 'dart:io';
 
 import 'package:any_image_view/any_image_view.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_avif/flutter_avif.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lottie/lottie.dart';
+
+/// Creates a throwaway file with [extension] that is deleted after the test.
+File _tempFile(String extension) {
+  final File file = File(
+    '${Directory.systemTemp.path}/any_image_view_'
+    '${DateTime.now().microsecondsSinceEpoch}.$extension',
+  );
+  file.writeAsBytesSync(const <int>[0]);
+  addTearDown(() {
+    if (file.existsSync()) file.deleteSync();
+  });
+  return file;
+}
+
+Widget _app(Widget child) => MaterialApp(home: Scaffold(body: child));
+
+/// Stands in for `XFile` / `File`: any object with a `path` getter works.
+class _FakeXFile {
+  const _FakeXFile(this.path);
+  final String path;
+}
 
 void main() {
   group('ImageType extension', () {
@@ -16,6 +34,9 @@ void main() {
       test('http URL returns ImageType.network', () {
         expect('http://example.com/photo.jpg'.imageType, ImageType.network);
       });
+      test('upper-case scheme returns ImageType.network', () {
+        expect('HTTPS://example.com/photo.jpg'.imageType, ImageType.network);
+      });
       test('network SVG URL returns ImageType.network', () {
         expect('https://example.com/icon.svg'.imageType, ImageType.network);
       });
@@ -24,6 +45,9 @@ void main() {
           'https://cdn.example.com/img.svg?token=abc'.imageType,
           ImageType.network,
         );
+      });
+      test('https URL ending in .json is network (not lottie asset)', () {
+        expect('https://example.com/a.json'.imageType, ImageType.network);
       });
     });
 
@@ -37,9 +61,6 @@ void main() {
       test('file path ending in .svg still returns ImageType.file', () {
         expect('/tmp/icon.svg'.imageType, ImageType.file);
       });
-      test('file path ending in .avif still returns ImageType.file', () {
-        expect('/tmp/photo.avif'.imageType, ImageType.file);
-      });
     });
 
     group('asset paths by extension', () {
@@ -52,39 +73,11 @@ void main() {
       test('.zip returns ImageType.zip', () {
         expect('assets/lottie/animation.zip'.imageType, ImageType.zip);
       });
-      test('.avif returns ImageType.avif', () {
-        expect('assets/images/photo.avif'.imageType, ImageType.avif);
-      });
-      test('uppercase .AVIF returns ImageType.avif', () {
-        expect('assets/images/photo.AVIF'.imageType, ImageType.avif);
-        expect('assets/images/photo.Avif'.imageType, ImageType.avif);
-      });
-      test('.avif with query string returns ImageType.avif', () {
-        expect('assets/images/photo.avif?v=2'.imageType, ImageType.avif);
-      });
-      test('.avif with fragment returns ImageType.avif', () {
-        expect('assets/images/photo.avif#frame1'.imageType, ImageType.avif);
-      });
-      test('uppercase .SVG/.JSON/.PNG are detected', () {
-        expect('assets/icons/logo.SVG'.imageType, ImageType.svg);
-        expect('assets/lottie/anim.JSON'.imageType, ImageType.json);
-        expect('assets/images/photo.JPG'.imageType, ImageType.jpeg);
-      });
-      test('.tif is detected as tiff', () {
-        expect('assets/images/scan.tif'.imageType, ImageType.tiff);
-      });
-      test('dot in a directory segment does not confuse detection', () {
-        // The only dot lives in a folder name, so there is no real extension
-        // and the path must fall through to the PNG asset default.
-        expect('assets/v1.2/photo'.imageType, ImageType.png);
-      });
       test('.png returns ImageType.png', () {
         expect('assets/images/photo.png'.imageType, ImageType.png);
       });
-      test('.jpg returns ImageType.jpeg', () {
+      test('.jpg and .jpeg return ImageType.jpeg', () {
         expect('assets/images/photo.jpg'.imageType, ImageType.jpeg);
-      });
-      test('.jpeg returns ImageType.jpeg', () {
         expect('assets/images/photo.jpeg'.imageType, ImageType.jpeg);
       });
       test('.webp returns ImageType.webp', () {
@@ -93,134 +86,99 @@ void main() {
       test('.gif returns ImageType.gif', () {
         expect('assets/images/anim.gif'.imageType, ImageType.gif);
       });
-      test('.tiff returns ImageType.tiff', () {
+      test('.tif and .tiff return ImageType.tiff', () {
+        expect('assets/images/scan.tif'.imageType, ImageType.tiff);
         expect('assets/images/photo.tiff'.imageType, ImageType.tiff);
       });
       test('.raw returns ImageType.raw', () {
         expect('assets/images/photo.raw'.imageType, ImageType.raw);
       });
-      test('.heic returns ImageType.heic', () {
+      test('.heic / .heif return their types', () {
         expect('assets/images/photo.heic'.imageType, ImageType.heic);
-      });
-      test('.heif returns ImageType.heif', () {
         expect('assets/images/photo.heif'.imageType, ImageType.heif);
       });
-      test('.bmp returns ImageType.bmp', () {
+      test('.bmp / .ico / .exr / .hdr return their types', () {
         expect('assets/images/photo.bmp'.imageType, ImageType.bmp);
-      });
-      test('.ico returns ImageType.ico', () {
         expect('assets/icons/app.ico'.imageType, ImageType.ico);
-      });
-      test('.exr returns ImageType.exr', () {
         expect('assets/images/photo.exr'.imageType, ImageType.exr);
-      });
-      test('.hdr returns ImageType.hdr', () {
         expect('assets/images/photo.hdr'.imageType, ImageType.hdr);
+      });
+      test('upper-case extensions are detected', () {
+        expect('assets/icons/logo.SVG'.imageType, ImageType.svg);
+        expect('assets/lottie/anim.JSON'.imageType, ImageType.json);
+        expect('assets/images/photo.JPG'.imageType, ImageType.jpeg);
+        expect('assets/images/photo.WebP'.imageType, ImageType.webp);
+      });
+      test('query string and fragment are ignored', () {
+        expect('assets/icons/logo.svg?v=2'.imageType, ImageType.svg);
+        expect('assets/icons/logo.svg#layer'.imageType, ImageType.svg);
+        expect('assets/icons/logo.svg?v=2#layer'.imageType, ImageType.svg);
       });
       test('path with no extension defaults to ImageType.png', () {
         expect('assets/images/photo'.imageType, ImageType.png);
       });
-    });
-
-    group('URL vs extension order', () {
-      test('https URL ending in .svg is network (not svg asset)', () {
-        expect('https://example.com/a.svg'.imageType, ImageType.network);
+      test('edge cases: empty, query-only and fragment-only strings', () {
+        expect(''.imageType, ImageType.png);
+        expect('?v=1'.imageType, ImageType.png);
+        expect('#frag'.imageType, ImageType.png);
+        expect('.svg'.imageType, ImageType.svg);
+        expect('photo.'.imageType, ImageType.png);
       });
-      test('https URL ending in .json is network (not lottie asset)', () {
-        expect('https://example.com/a.json'.imageType, ImageType.network);
+      test('dot in a directory segment does not confuse detection', () {
+        expect('assets/v1.2/photo'.imageType, ImageType.png);
       });
-      test('https URL ending in .avif is network (not avif asset)', () {
-        expect('https://example.com/photo.avif'.imageType, ImageType.network);
-      });
-      test('https URL with .avif and query string returns ImageType.network',
-          () {
-        expect(
-          'https://cdn.example.com/photo.avif?token=abc'.imageType,
-          ImageType.network,
-        );
+      test('.avif returns ImageType.avif', () {
+        expect('assets/images/photo.avif'.imageType, ImageType.avif);
+        expect('assets/images/photo.AVIF?v=2'.imageType, ImageType.avif);
       });
     });
   });
 
-  group('AnyImageView widget builds correct child for format', () {
-    // Network SVG: extension test verifies URL → ImageType.network; routing to
-    // SvgPicture.network is in code. Widget test skipped (HTTP 400 in test env).
-
-    testWidgets('network image URL builds CachedNetworkImage', (tester) async {
+  group('AnyImageView builds the right child for each source', () {
+    testWidgets('network image URL builds Image with AnyNetworkImage', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: AnyImageView(
-              imagePath: 'https://example.com/photo.jpg',
-              width: 100,
-              height: 100,
-            ),
+        _app(
+          const AnyImageView(
+            imagePath: 'https://example.com/photo.jpg',
+            width: 100,
+            height: 100,
           ),
         ),
       );
       await tester.pump();
-      expect(find.byType(CachedNetworkImage), findsOneWidget);
-    });
-
-    testWidgets('network PNG URL builds CachedNetworkImage', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: AnyImageView(
-              imagePath: 'https://example.com/image.png',
-              width: 100,
-              height: 100,
-            ),
-          ),
-        ),
+      expect(
+        tester.widget<Image>(find.byType(Image)).image,
+        isA<AnyNetworkImage>(),
       );
-      await tester.pump();
-      expect(find.byType(CachedNetworkImage), findsOneWidget);
-    });
-
-    testWidgets('network AVIF URL builds CachedNetworkAvifImage',
-        (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: AnyImageView(
-              imagePath: 'https://example.com/photo.avif',
-              width: 100,
-              height: 100,
-            ),
-          ),
-        ),
-      );
-      await tester.pump();
-      expect(find.byType(CachedNetworkAvifImage), findsOneWidget);
     });
 
     testWidgets(
-        'network AVIF URL with query string builds CachedNetworkAvifImage',
-        (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: AnyImageView(
-              imagePath: 'https://cdn.example.com/photo.avif?token=abc',
+      'network URL with query string builds Image with AnyNetworkImage',
+      (tester) async {
+        await tester.pumpWidget(
+          _app(
+            const AnyImageView(
+              imagePath: 'https://cdn.example.com/image.png?token=abc',
               width: 100,
               height: 100,
             ),
           ),
-        ),
-      );
-      await tester.pump();
-      expect(find.byType(CachedNetworkAvifImage), findsOneWidget);
-    });
+        );
+        await tester.pump();
+        expect(
+          tester.widget<Image>(find.byType(Image)).image,
+          isA<AnyNetworkImage>(),
+        );
+      },
+    );
 
-    testWidgets('null imagePath shows error fallback (broken image)',
-        (tester) async {
+    testWidgets('null imagePath shows error fallback (broken image)', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: AnyImageView(imagePath: null, width: 100, height: 100),
-          ),
-        ),
+        _app(const AnyImageView(imagePath: null, width: 100, height: 100)),
       );
       await tester.pump();
       expect(find.byIcon(Icons.broken_image), findsOneWidget);
@@ -228,116 +186,100 @@ void main() {
 
     testWidgets('empty string imagePath shows error fallback', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: AnyImageView(imagePath: '', width: 100, height: 100),
-          ),
-        ),
+        _app(const AnyImageView(imagePath: '', width: 100, height: 100)),
       );
       await tester.pump();
       expect(find.byIcon(Icons.broken_image), findsOneWidget);
     });
 
-    testWidgets(
-        'asset SVG path shows loading then SvgPicture or error fallback',
-        (tester) async {
+    testWidgets('unsupported imagePath type shows error fallback', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: AnyImageView(
-              imagePath: 'assets/svg/icon.svg',
-              width: 100,
-              height: 100,
-            ),
+        _app(const AnyImageView(imagePath: 42, width: 100, height: 100)),
+      );
+      await tester.pump();
+      expect(find.byIcon(Icons.broken_image), findsOneWidget);
+    });
+
+    testWidgets('custom errorWidget replaces the default fallback', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          const AnyImageView(
+            imagePath: null,
+            width: 100,
+            height: 100,
+            errorWidget: Text('nope'),
           ),
         ),
       );
       await tester.pump();
-      // No asset in test package: future fails, so we show error fallback.
+      expect(find.text('nope'), findsOneWidget);
+      expect(find.byIcon(Icons.broken_image), findsNothing);
+    });
+
+    testWidgets('missing asset SVG shows loading then error fallback', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          const AnyImageView(
+            imagePath: 'assets/svg/icon.svg',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      // No asset in the test package: the load fails and the fallback shows.
       await tester.pumpAndSettle();
-      expect(
-        find.byIcon(Icons.broken_image),
-        findsOneWidget,
-      );
+      expect(find.byIcon(Icons.broken_image), findsOneWidget);
     });
 
-    testWidgets('asset JSON path builds Lottie', (tester) async {
+    testWidgets('custom placeholderWidget is used while loading', (
+      tester,
+    ) async {
+      // A network image stays in the loading state (initial fetch, then the
+      // retry back-off) long enough to observe the placeholder reliably.
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: AnyImageView(
-              imagePath: 'assets/lottie/animation.json',
-              width: 100,
-              height: 100,
-            ),
+        _app(
+          const AnyImageView(
+            imagePath: 'https://example.com/photo.jpg',
+            width: 100,
+            height: 100,
+            placeholderWidget: Text('loading'),
           ),
         ),
       );
       await tester.pump();
-      expect(find.byType(LottieBuilder), findsOneWidget);
+      expect(find.text('loading'), findsOneWidget);
+      expect(find.byType(Shimmer), findsNothing);
     });
 
-    testWidgets('asset AVIF path builds AvifImage', (tester) async {
+    testWidgets('missing asset JSON shows loading then error fallback', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: AnyImageView(
-              imagePath: 'assets/images/photo.avif',
-              width: 100,
-              height: 100,
-            ),
+        _app(
+          const AnyImageView(
+            imagePath: 'assets/lottie/animation.json',
+            width: 100,
+            height: 100,
           ),
         ),
       );
-      await tester.pump();
-      expect(find.byType(AvifImage), findsOneWidget);
-    });
-
-    testWidgets('local file AVIF path builds AvifImage (file route)',
-        (tester) async {
-      // Real on-disk file required: _buildFileImage's existsSync() gate would
-      // otherwise short-circuit to the error fallback before any AvifImage is
-      // mounted, so we cannot fake this with a string path alone.
-      final tmpFile = File(
-        '${Directory.systemTemp.path}/any_image_view_file_route_'
-        '${DateTime.now().microsecondsSinceEpoch}.avif',
-      );
-      tmpFile.writeAsBytesSync(const [0]);
-      addTearDown(() {
-        if (tmpFile.existsSync()) tmpFile.deleteSync();
-      });
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: AnyImageView(
-              imagePath: tmpFile.path,
-              width: 100,
-              height: 100,
-            ),
-          ),
-        ),
-      );
-      // _buildFileImage wraps the AvifImage in a FutureBuilder<bool> on
-      // file.exists(); runAsync lets that future resolve, then pump rebuilds.
-      // pumpAndSettle would deadlock on Shimmer's repeating animation.
-      await tester.runAsync(() async {
-        await Future<void>.delayed(const Duration(milliseconds: 50));
-      });
-      await tester.pump();
-
-      expect(find.byType(AvifImage), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.broken_image), findsOneWidget);
     });
 
     testWidgets('asset PNG path builds Image (asset)', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: AnyImageView(
-              imagePath: 'assets/images/photo.png',
-              width: 100,
-              height: 100,
-            ),
+        _app(
+          const AnyImageView(
+            imagePath: 'assets/images/photo.png',
+            width: 100,
+            height: 100,
           ),
         ),
       );
@@ -345,58 +287,229 @@ void main() {
       expect(find.byType(Image), findsOneWidget);
     });
 
-    testWidgets('enableFullscreen: true opens dialog with close button on tap',
-        (tester) async {
+    testWidgets('missing local file path shows error fallback', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: AnyImageView(
+        _app(
+          const AnyImageView(
+            imagePath: '/definitely/not/here.png',
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.byIcon(Icons.broken_image), findsOneWidget);
+    });
+
+    testWidgets('existing local file path builds Image (file route)', (
+      tester,
+    ) async {
+      final File file = _tempFile('png');
+      await tester.pumpWidget(
+        _app(AnyImageView(imagePath: file.path, width: 100, height: 100)),
+      );
+      await tester.pump();
+      expect(find.byType(Image), findsOneWidget);
+      expect(find.byType(Shimmer), findsNothing);
+    });
+
+    testWidgets('file:// URI resolves to the same file', (tester) async {
+      final File file = _tempFile('png');
+      await tester.pumpWidget(
+        _app(
+          AnyImageView(imagePath: file.uri.toString(), width: 100, height: 100),
+        ),
+      );
+      await tester.pump();
+      expect(find.byType(Image), findsOneWidget);
+      expect(find.byIcon(Icons.broken_image), findsNothing);
+    });
+
+    testWidgets('object with a path getter builds Image (file route)', (
+      tester,
+    ) async {
+      final File file = _tempFile('jpg');
+      await tester.pumpWidget(
+        _app(
+          AnyImageView(
+            imagePath: _FakeXFile(file.path),
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.byType(Image), findsOneWidget);
+    });
+
+    testWidgets('XFile with empty path shows error fallback', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          AnyImageView(
+            imagePath: const _FakeXFile(''),
+            width: 100,
+            height: 100,
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.byIcon(Icons.broken_image), findsOneWidget);
+    });
+  });
+
+  group('AnyImageView layout and interaction', () {
+    testWidgets('works without a Material ancestor', (tester) async {
+      var tapped = 0;
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: AnyImageView(
+            imagePath: null,
+            width: 100,
+            height: 100,
+            onTap: () => tapped++,
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.byType(AnyImageView));
+      expect(tapped, 1);
+    });
+
+    testWidgets('no gesture wrapper when nothing handles taps', (tester) async {
+      await tester.pumpWidget(
+        _app(const AnyImageView(imagePath: null, width: 100, height: 100)),
+      );
+      await tester.pump();
+      expect(
+        find.descendant(
+          of: find.byType(AnyImageView),
+          matching: find.byType(GestureDetector),
+        ),
+        findsNothing,
+      );
+    });
+
+    testWidgets('circle shape clips with ClipOval', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          const AnyImageView(
+            imagePath: null,
+            width: 100,
+            height: 100,
+            shape: BoxShape.circle,
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.byType(ClipOval), findsOneWidget);
+      expect(find.byType(ClipRRect), findsNothing);
+    });
+
+    testWidgets('rounded rectangle clips with ClipRRect, plain one does not', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          const AnyImageView(
+            imagePath: null,
+            width: 100,
+            height: 100,
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.byType(ClipRRect), findsOneWidget);
+
+      await tester.pumpWidget(
+        _app(const AnyImageView(imagePath: null, width: 100, height: 100)),
+      );
+      await tester.pump();
+      expect(find.byType(ClipRRect), findsNothing);
+      expect(find.byType(ClipOval), findsNothing);
+    });
+
+    testWidgets('enableZoom wraps the image in InteractiveViewer', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          const AnyImageView(
+            imagePath: null,
+            width: 100,
+            height: 100,
+            enableZoom: true,
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.byType(InteractiveViewer), findsOneWidget);
+    });
+
+    testWidgets(
+      'enableFullscreen: true opens dialog with close button on tap',
+      (tester) async {
+        await tester.pumpWidget(
+          _app(
+            const AnyImageView(
               imagePath: 'https://example.com/photo.jpg',
               width: 100,
               height: 100,
               enableFullscreen: true,
             ),
           ),
-        ),
-      );
-      await tester.pump();
+        );
+        await tester.pump();
 
-      await tester.tap(find.byType(AnyImageView).first);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
+        await tester.tap(find.byType(AnyImageView).first);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
 
-      expect(find.byType(Dialog), findsOneWidget);
-      expect(find.byIcon(Icons.close), findsOneWidget);
+        expect(find.byType(Dialog), findsOneWidget);
+        expect(find.byIcon(Icons.close), findsOneWidget);
 
-      final viewer = tester.widget<InteractiveViewer>(
-        find.byType(InteractiveViewer),
-      );
-      expect(viewer.scaleEnabled, isTrue);
-      expect(viewer.panEnabled, isTrue);
-      expect(viewer.maxScale, greaterThan(viewer.minScale));
+        final InteractiveViewer viewer = tester.widget<InteractiveViewer>(
+          find.byType(InteractiveViewer),
+        );
+        expect(viewer.scaleEnabled, isTrue);
+        expect(viewer.panEnabled, isTrue);
+        expect(viewer.maxScale, greaterThan(viewer.minScale));
 
-      final controller = viewer.transformationController!;
-      expect(controller.value, Matrix4.identity());
-      await tester.tap(find.byType(InteractiveViewer));
-      await tester.pump(const Duration(milliseconds: 50));
-      await tester.tap(find.byType(InteractiveViewer));
-      await tester.pump(const Duration(milliseconds: 50));
-      expect(controller.value, isNot(Matrix4.identity()));
+        // Double-tap zooms in; a second double-tap resets.
+        final TransformationController controller =
+            viewer.transformationController!;
+        expect(controller.value, Matrix4.identity());
+        await tester.tap(find.byType(InteractiveViewer));
+        await tester.pump(const Duration(milliseconds: 50));
+        await tester.tap(find.byType(InteractiveViewer));
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(controller.value, isNot(Matrix4.identity()));
+        expect(controller.value.getMaxScaleOnAxis(), closeTo(2.5, 0.001));
 
-      await tester.tap(find.byIcon(Icons.close));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-      expect(find.byType(Dialog), findsNothing);
-    });
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.tap(find.byType(InteractiveViewer));
+        await tester.pump(const Duration(milliseconds: 50));
+        await tester.tap(find.byType(InteractiveViewer));
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(controller.value, Matrix4.identity());
+
+        await tester.tap(find.byIcon(Icons.close));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+        expect(find.byType(Dialog), findsNothing);
+      },
+    );
 
     testWidgets(
-        'enableFullscreen: true does NOT open dialog when onTap is provided',
-        (tester) async {
-      var tapped = 0;
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: AnyImageView(
+      'enableFullscreen: true does NOT open dialog when onTap is provided',
+      (tester) async {
+        var tapped = 0;
+        await tester.pumpWidget(
+          _app(
+            AnyImageView(
               imagePath: 'https://example.com/photo.jpg',
               width: 100,
               height: 100,
@@ -404,16 +517,28 @@ void main() {
               onTap: () => tapped++,
             ),
           ),
-        ),
-      );
-      await tester.pump();
+        );
+        await tester.pump();
 
-      await tester.tap(find.byType(AnyImageView).first);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
+        await tester.tap(find.byType(AnyImageView).first);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
 
-      expect(tapped, 1);
-      expect(find.byType(Dialog), findsNothing);
+        expect(tapped, 1);
+        expect(find.byType(Dialog), findsNothing);
+      },
+    );
+  });
+
+  group('Shimmer', () {
+    testWidgets('renders an animated ShaderMask and disposes cleanly', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app(const Shimmer(width: 100, height: 100)));
+      expect(find.byType(ShaderMask), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpWidget(_app(const SizedBox()));
+      expect(tester.takeException(), isNull);
     });
   });
 }
