@@ -108,8 +108,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
               _Tile(
                 title: 'Network image · tap for fullscreen',
                 child: AnyImageView(
-                  imagePath:
-                      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600',
+                  imagePath: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600',
                   height: 200,
                   width: imageWidth,
                   fit: BoxFit.cover,
@@ -160,8 +159,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
               _Tile(
                 title: 'AVIF network',
                 child: AnyImageView(
-                  imagePath:
-                      'https://raw.githubusercontent.com/link-u/avif-sample-images/master/fox.profile0.10bpc.yuv420.odd-width.odd-height.avif',
+                  imagePath: 'https://raw.githubusercontent.com/link-u/avif-sample-images/master/fox.profile0.8bpc.yuv420.avif',
                   height: 200,
                   width: imageWidth,
                   fit: BoxFit.cover,
@@ -180,8 +178,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
               _Tile(
                 title: 'Circular avatar',
                 child: AnyImageView(
-                  imagePath:
-                      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200',
+                  imagePath: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200',
                   height: 130,
                   width: 130,
                   fit: BoxFit.cover,
