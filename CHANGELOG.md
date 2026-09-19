@@ -1,16 +1,28 @@
+## 2.5.0
+- Breaking: zero third-party dependencies. `flutter_svg`, `lottie`, `cached_network_image`, `cross_file`, `http` and `flutter_avif` are removed; the package depends on the Flutter SDK only.
+- Breaking: requires Flutter 3.47 / Dart 3.13.
+- Added: built-in SVG renderer (paths, shapes, groups, `use`/`symbol`, transforms, gradients, dashed strokes, opacity, `clip-path`, inline and `<style>` CSS). Text, filters, masks, patterns, markers and embedded images are skipped.
+- Added: built-in Lottie player (shape, solid, image, null and pre-comp layers, parenting, bezier keyframes, trim paths, masks, alpha mattes; `.zip` / `.lottie` bundles on native). Text layers, effects, expressions, repeaters, merge paths and rounded corners are not supported.
+- Added: built-in disk cache for network images and network SVGs, automatic, 7-day expiry, works offline. Uses the app cache directory on Android and the system temp directory elsewhere.
+- Added: AVIF and HEIC through the platform decoder (Android 12+, iOS 16+, macOS 13+, web), no plugin needed. Still images only.
+- Added: `imagePath` accepts any object with a `path` getter (`XFile`, `File`); `.lottie` and `.tif` are recognised.
+- Fixed: `maxRetryAttempts` was never used; network loads now retry with 300/600/900 ms back-off.
+- Fixed: the disk cache never wrote on Android (`Directory.systemTemp` is not writable there).
+- Fixed: `file://` URIs, `XFile` on the web, SVG not reloading when `imagePath` changed, SVG and Lottie failures now show the error widget instead of throwing.
+- Improved: no `Material` ancestor required; no clip layer unless needed; no redundant `FutureBuilder` for files; shimmer builds its box once; large Lottie JSON parsed off the UI thread; errors logged in debug builds only.
+- Removed: the Android plugin module from 2.3.2 (it only patched `flutter_avif_android`).
+- Fixed: pub.dev now detects Web support; the widget no longer imports `dart:io` directly (file loading sits behind a conditional import).
+- Tooling: `flutter_lints` 6 via `flutter.yaml`; `.pubignore` excludes build output (archive about 1 MB); example app on AGP 9.1 / Kotlin 2.4 / Gradle 9.3.1 with an integration test that passed on Android and iOS.
+
+---
+
 ## 2.3.2
-- Added: **automatic Android build fixes.** The package now ships a minimal Android module (it registers no platform channels) whose `build.gradle` repairs two build-time problems, so consumers no longer edit Gradle by hand:
-  - **`Redeclaration: class FlutterAvifPlugin`** — `flutter_avif_android` 3.1.0 ships the same plugin class as both `FlutterAvifPlugin.java` and `FlutterAvifPlugin.kt`; AGP 8.9+ compiles both source sets and the build fails. The redundant Java source directory is now stripped from that module automatically, keeping the Kotlin class that `pluginClass:` registers. Applied only when the duplicate is actually present, so a fixed upstream release is untouched.
-  - **NDK version mismatch** — the app's `ndkVersion` is raised to the one vended by the host Flutter SDK (never lowered), matching what transitive native plugins such as `jni` require. Verified via Gradle probe that the app, `jni` and this module all resolve to the same NDK.
-- Fixed: **AVIF format detection** — paths were matched with case-sensitive `endsWith`, so `photo.AVIF`, `photo.avif?v=2` and `photo.avif#frag` fell through to the PNG default and rendered as a broken image. Detection now strips any query string/fragment and lower-cases the extension. The same fix applies to every other format (SVG, JSON, PNG, JPEG, …), and `.tif` is now recognised alongside `.tiff`.
-- Fixed: **AVIF render quality** — all three AVIF paths (asset, file, network) inherited `AvifImage`'s `FilterQuality.low` default, which visibly degraded scaled images. They now use `FilterQuality.high`, matching the other formats.
-- Fixed: **Animated AVIF flicker** — AVIF image sequences (`ftypavis`) now render with `gaplessPlayback: true`, so the previous frame is held while the next decodes instead of flashing the placeholder between frames.
-- Fixed: **AVIF loading state** — AVIF decoding is slower than PNG/JPEG, and previously showed an empty box until the first frame was ready. All AVIF paths now show the shimmer placeholder while decoding, then fade in.
-- Dependencies: raised `lottie` to `^3.5.1` (from `^3.3.3`) and `cross_file` to `^0.3.5+4` (from `^0.3.5+2`). The lottie bump is additive — it picks up text animator range selectors, `ValueDelegate.path`, correct `alignment` handling for cropped fits such as `BoxFit.cover`, and a render-cache crop fix. All other direct dependencies were already at their latest release.
-- Example: upgraded the app's transitive packages to their latest resolvable versions (`image_picker` 1.2.3, `xml` 7.0.1, `sqflite` 2.4.3, `jni` 1.0.3, `archive` 4.1.0, `package_config` 3.0.0, `path_provider` 2.1.6, `flutter_cache_manager` 3.4.2, `uuid` 4.6.0, `vector_graphics_compiler` 1.3.0, and others).
-- Example: bumped the Kotlin Gradle plugin to 2.2.20, clearing the "Flutter support for your project's Kotlin version (2.1.0) will soon be dropped" build warning.
-- Fixed: **published archive size** — `.pubignore` fully replaces `.gitignore` when publishing, and it did not exclude build output, so `example/build/` artifacts (including a 53 MB `.dill` cache) were shipped to pub.dev. Build and tool directories are now excluded: the archive drops from 21 MB to 2 MB.
-- Docs: replaced the two manual Android workaround sections with a short "Android setup: none required" note.
+- Added: an Android module that strips the duplicate `FlutterAvifPlugin.java` from `flutter_avif_android` 3.1.0 (AGP 8.9+ build failure) and raises the app's `ndkVersion` to the Flutter SDK's, so no manual Gradle edits are needed.
+- Fixed: format detection is case-insensitive and ignores query strings and fragments (`photo.AVIF?v=2`); `.tif` is recognised alongside `.tiff`.
+- Fixed: AVIF rendered at `FilterQuality.low`, animated AVIF flickered between frames, and AVIF showed an empty box while decoding. Now high quality, gapless, with the shimmer placeholder.
+- Fixed: `.pubignore` did not exclude build output, so the archive shipped `example/build/` (53 MB `.dill`). Archive drops from 21 MB to 2 MB.
+- Dependencies: `lottie` ^3.5.1, `cross_file` ^0.3.5+4; example transitive packages and Kotlin Gradle plugin (2.2.20) updated.
+- Docs: replaced the manual Android workaround sections with "Android setup: none required".
 
 ---
 
